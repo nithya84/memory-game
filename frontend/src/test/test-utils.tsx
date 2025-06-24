@@ -1,14 +1,9 @@
 import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 
-// Mock providers for testing
+// Mock providers for testing (Router is now handled in App.tsx)
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <BrowserRouter>
-      {children}
-    </BrowserRouter>
-  );
+  return <>{children}</>;
 };
 
 const customRender = (

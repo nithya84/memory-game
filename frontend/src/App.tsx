@@ -1,13 +1,21 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Home, Game, CreateGame, Settings, ParentDashboard } from './pages';
+import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header>
-        <h1>Memory Game</h1>
-        <p>Loading...</p>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/game" element={<Game />} />
+          <Route path="/create" element={<CreateGame />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/parent" element={<ParentDashboard />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
