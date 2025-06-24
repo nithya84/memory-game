@@ -1,0 +1,262 @@
+/* GameBoard Component */
+.game-board-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Game Header */
+.game-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.game-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+}
+
+.game-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 1.1rem;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+.game-stats span {
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  border-radius: 20px;
+  border: 2px solid #e9ecef;
+}
+
+/* Game Board Grid */
+.game-board {
+  display: grid;
+  gap: 1rem;
+  margin: 0 auto 2rem auto;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 100%;
+  justify-content: center;
+}
+
+/* Dynamic grid sizing based on difficulty */
+.game-board {
+  /* Grid columns will be set dynamically via inline styles */
+  grid-template-columns: repeat(4, minmax(80px, 120px));
+}
+
+/* Responsive grid adjustments */
+@media (min-width: 768px) {
+  .game-board {
+    gap: 1.5rem;
+    padding: 2rem;
+    grid-template-columns: repeat(4, minmax(100px, 140px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .game-board {
+    grid-template-columns: repeat(5, minmax(120px, 160px));
+  }
+}
+
+/* Specific layouts for different card counts */
+.game-board[style*="repeat(3,"] {
+  grid-template-columns: repeat(3, minmax(100px, 150px));
+}
+
+.game-board[style*="repeat(4,"] {
+  grid-template-columns: repeat(4, minmax(90px, 130px));
+}
+
+.game-board[style*="repeat(5,"] {
+  grid-template-columns: repeat(5, minmax(80px, 120px));
+}
+
+.game-board[style*="repeat(6,"] {
+  grid-template-columns: repeat(6, minmax(70px, 110px));
+}
+
+/* Game Complete Modal */
+.game-complete {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.game-complete h2 {
+  color: #ffffff;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.game-complete p {
+  color: #ffffff;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.play-again-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.play-again-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Game Controls */
+.game-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: auto;
+  padding: 1rem;
+}
+
+.new-game-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+}
+
+.new-game-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .game-board-container {
+    padding: 0.5rem;
+  }
+
+  .game-header {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+  }
+
+  .game-header h1 {
+    font-size: 2rem;
+  }
+
+  .game-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .game-board {
+    gap: 0.75rem;
+    padding: 1rem;
+    grid-template-columns: repeat(4, minmax(60px, 80px)) !important;
+  }
+
+  .game-complete h2 {
+    font-size: 2rem;
+  }
+
+  .game-complete p {
+    font-size: 1.2rem;
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-board {
+    grid-template-columns: repeat(3, minmax(70px, 90px)) !important;
+    gap: 0.5rem;
+  }
+  
+  .game-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .game-stats span {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .game-complete {
+    animation: none;
+  }
+  
+  .play-again-btn:hover,
+  .new-game-btn:hover {
+    transform: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .game-header {
+    border: 2px solid #000000;
+  }
+  
+  .game-board {
+    border: 2px solid #000000;
+  }
+  
+  .game-stats span {
+    border-color: #000000;
+  }
+}

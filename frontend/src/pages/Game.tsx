@@ -1,41 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { GameBoard } from '../components';
 
 const Game: React.FC = () => {
+  const [difficulty, setDifficulty] = useState(6);
+  const [gameKey, setGameKey] = useState(0);
+
+  const handleGameComplete = (stats: { moves: number; time: number }) => {
+    console.log('Game completed!', stats);
+    // TODO: Save game statistics
+  };
+
+  const handleNewGame = () => {
+    setGameKey(prev => prev + 1);
+  };
+
   return (
     <div className="game-page">
-      <header className="game-header">
+      <nav className="game-nav">
         <Link to="/" className="back-button">
           ← Back to Home
         </Link>
-        <h1>Memory Game</h1>
-        <div className="game-info">
-          <span>Pairs: 0/6</span>
-          <span>Time: 00:00</span>
-        </div>
-      </header>
-      
-      <main className="game-area">
-        <div className="game-board-placeholder">
-          <h2>Game Board Coming Soon!</h2>
-          <p>This is where the memory game grid will be displayed.</p>
-          <div className="placeholder-grid">
-            {Array.from({ length: 12 }, (_, i) => (
-              <div key={i} className="placeholder-card">
-                Card {i + 1}
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-      
-      <aside className="game-controls">
-        <button className="control-button">New Game</button>
-        <button className="control-button">Pause</button>
-        <Link to="/settings" className="control-button">
+        <Link to="/settings" className="settings-button">
           Settings
         </Link>
-      </aside>
+      </nav>
+      
+      <main className="game-main">
+        <GameBoard
+          key={gameKey}
+          difficulty={difficulty}
+          onGameComplete={handleGameComplete}
+        />
+      </main>
     </div>
   );
 };

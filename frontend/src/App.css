@@ -130,63 +130,33 @@ body {
 
 /* Game Page */
 .game-page {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
   min-height: 100vh;
+  background: #f8f9fa;
 }
 
-.game-header {
+.game-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
   background: white;
   border-bottom: 2px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.game-info {
-  display: flex;
-  gap: 2rem;
-  font-weight: 600;
-}
-
-.game-area {
-  padding: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.game-board-placeholder {
-  text-align: center;
-}
-
-.placeholder-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  max-width: 600px;
-  margin: 2rem auto;
-}
-
-.placeholder-card {
-  aspect-ratio: 1;
-  background: #e9ecef;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
+.settings-button {
   color: #6c757d;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
 }
 
-.game-controls {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  padding: 1rem 2rem;
-  background: white;
-  border-top: 2px solid #e9ecef;
+.settings-button:hover {
+  color: #495057;
+}
+
+.game-main {
+  padding: 0;
 }
 
 /* Create Game Page */
@@ -398,14 +368,6 @@ body {
     grid-template-columns: 1fr;
   }
   
-  .game-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .game-controls {
-    flex-wrap: wrap;
-  }
   
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);

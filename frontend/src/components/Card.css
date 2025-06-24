@@ -1,0 +1,158 @@
+/* Memory Card Component */
+.memory-card {
+  aspect-ratio: 1;
+  perspective: 1000px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border-radius: 12px;
+  position: relative;
+  min-height: 80px;
+  max-height: 200px;
+}
+
+.memory-card:hover:not(.disabled):not(.matched) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.memory-card:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+}
+
+.memory-card.disabled {
+  cursor: not-allowed;
+}
+
+.memory-card.matched {
+  opacity: 0.8;
+  transform: scale(0.95);
+}
+
+/* Card Inner Container for 3D Flip */
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transform-style: preserve-3d;
+  border-radius: 12px;
+}
+
+.memory-card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Individual Card Faces */
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #f8f9fa;
+}
+
+/* Card Back (Default State) */
+.card-back {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotateY(0deg);
+}
+
+.card-pattern {
+  width: 60%;
+  height: 60%;
+  position: relative;
+  opacity: 0.3;
+}
+
+.pattern-dots {
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 25% 25%, #6c757d 2px, transparent 2px),
+    radial-gradient(circle at 75% 25%, #6c757d 2px, transparent 2px),
+    radial-gradient(circle at 25% 75%, #6c757d 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, #6c757d 2px, transparent 2px),
+    radial-gradient(circle at 50% 50%, #6c757d 3px, transparent 3px);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+}
+
+/* Card Front (Flipped State) */
+.card-front {
+  background: #ffffff;
+  transform: rotateY(180deg);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Matched State */
+.memory-card.matched .card-face {
+  border-color: #28a745;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+.memory-card.matched .card-back {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+}
+
+/* Disabled State */
+.memory-card.disabled {
+  opacity: 0.6;
+}
+
+.memory-card.disabled .card-inner {
+  transform: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .memory-card {
+    border-radius: 8px;
+  }
+  
+  .card-face {
+    border-radius: 8px;
+  }
+  
+  .card-front {
+    padding: 4px;
+  }
+  
+  .card-image {
+    border-radius: 4px;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .memory-card {
+    transition: none;
+  }
+  
+  .card-inner {
+    transition: none;
+  }
+  
+  .memory-card:hover:not(.disabled):not(.matched) {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
