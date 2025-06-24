@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@shared/*": ["../shared/src/*"]
+    }
+  },
+  "include": ["src/**/*", "vite.config.ts"],
+  "exclude": ["dist", "node_modules"]
+}
