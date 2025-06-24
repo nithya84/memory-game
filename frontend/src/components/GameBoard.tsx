@@ -19,28 +19,28 @@ interface GameBoardProps {
   onGameComplete?: (stats: { moves: number; time: number }) => void;
 }
 
-// Sample animal images - will be replaced with actual theme-based images
-const SAMPLE_IMAGES = [
+// Animal theme images matching the Figma design
+const ANIMAL_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=300&h=300&fit=crop', alt: 'Cat' },
-  { url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=300&h=300&fit=crop', alt: 'Dog' },
-  { url: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&h=300&fit=crop', alt: 'Bird' },
-  { url: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=300&h=300&fit=crop', alt: 'Rabbit' },
-  { url: 'https://images.unsplash.com/photo-1549692520-acc6669e2f0c?w=300&h=300&fit=crop', alt: 'Elephant' },
-  { url: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=300&h=300&fit=crop', alt: 'Tiger' },
-  { url: 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop', alt: 'Penguin' },
-  { url: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=300&h=300&fit=crop', alt: 'Giraffe' },
-  { url: 'https://images.unsplash.com/photo-1567201080580-bfcc97dae346?w=300&h=300&fit=crop', alt: 'Lion' },
-  { url: 'https://images.unsplash.com/photo-1551041036-dbc6b3b8394e?w=300&h=300&fit=crop', alt: 'Zebra' },
+  { url: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=300&h=300&fit=crop', alt: 'Dog' },
   { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop', alt: 'Bear' },
-  { url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=300&h=300&fit=crop', alt: 'Monkey' },
+  { url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300&h=300&fit=crop', alt: 'Fox' },
+  { url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=300&fit=crop', alt: 'Monkey' },
+  { url: 'https://images.unsplash.com/photo-1567201080580-bfcc97dae346?w=300&h=300&fit=crop', alt: 'Lion' },
+  { url: 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=300&h=300&fit=crop', alt: 'Tiger' },
+  { url: 'https://images.unsplash.com/photo-1549692520-acc6669e2f0c?w=300&h=300&fit=crop', alt: 'Elephant' },
   { url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=300&fit=crop', alt: 'Owl' },
+  { url: 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop', alt: 'Penguin' },
+  { url: 'https://images.unsplash.com/photo-1560743173-567a3b5658b1?w=300&h=300&fit=crop', alt: 'Parrot' },
+  { url: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=300&h=300&fit=crop', alt: 'Giraffe' },
+  { url: 'https://images.unsplash.com/photo-1551041036-dbc6b3b8394e?w=300&h=300&fit=crop', alt: 'Zebra' },
+  { url: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=300&h=300&fit=crop', alt: 'Rabbit' },
+  { url: 'https://images.unsplash.com/photo-1573160103600-9d99f66f1fed?w=300&h=300&fit=crop', alt: 'Wolf' },
+  { url: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=300&h=300&fit=crop', alt: 'Deer' },
   { url: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300&h=300&fit=crop', alt: 'Fish' },
   { url: 'https://images.unsplash.com/photo-1520315342629-6ea920342047?w=300&h=300&fit=crop', alt: 'Turtle' },
-  { url: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=300&h=300&fit=crop', alt: 'Deer' },
-  { url: 'https://images.unsplash.com/photo-1554456854-55a089fd4cb2?w=300&h=300&fit=crop', alt: 'Fox' },
-  { url: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&h=300&fit=crop', alt: 'Wolf' },
-  { url: 'https://images.unsplash.com/photo-1560743173-567a3b5658b1?w=300&h=300&fit=crop', alt: 'Parrot' },
-  { url: 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop', alt: 'Eagle' }
+  { url: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=300&h=300&fit=crop', alt: 'Eagle' },
+  { url: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&h=300&fit=crop', alt: 'Bird' }
 ];
 
 const GameBoard: React.FC<GameBoardProps> = ({ 
@@ -61,7 +61,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   // Initialize game cards
   const initializeGame = useCallback(() => {
-    const selectedImages = SAMPLE_IMAGES.slice(0, difficulty);
+    const selectedImages = ANIMAL_IMAGES.slice(0, difficulty);
     const cardPairs: CardData[] = [];
     
     // Create pairs of cards
@@ -208,15 +208,17 @@ const GameBoard: React.FC<GameBoardProps> = ({
     initializeGame();
   }, [initializeGame]);
 
-  // Calculate grid columns based on card count
+  // Calculate grid columns optimized for desktop viewing
   const getGridColumns = () => {
     const totalCards = difficulty * 2;
-    if (totalCards <= 8) return 4;
-    if (totalCards <= 12) return 4;
-    if (totalCards <= 16) return 4;
-    if (totalCards <= 20) return 5;
-    if (totalCards <= 30) return 6;
-    return 8;
+    console.log(`Difficulty: ${difficulty}, Total cards: ${totalCards}`);
+    if (totalCards <= 12) return 3; // 3x3 or 4x3
+    if (totalCards <= 16) return 4; // 4x4
+    if (totalCards <= 24) return 6; // 4x6
+    if (totalCards <= 32) return 8; // 4x8
+    const columns = 10; // 4x10 for 40 cards (20 pairs)
+    console.log(`Using ${columns} columns for ${totalCards} cards`);
+    return columns;
   };
 
   const isCardFlipped = (cardId: string) => {
@@ -229,16 +231,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
     <div className="game-board-container">
       <div className="game-header">
         <h1>Memory Match</h1>
+        <p className="game-subtitle">Find all the matching pairs!</p>
         <div className="game-stats">
-          <span>Pairs: {gameState.matchedPairs}/{gameState.totalPairs}</span>
-          <span>Moves: {gameState.moves}</span>
+          <span>{gameState.matchedPairs}/{gameState.totalPairs} Matched</span>
         </div>
       </div>
 
       <div 
         className="game-board"
+        data-columns={getGridColumns()}
         style={{ 
-          gridTemplateColumns: `repeat(${getGridColumns()}, 1fr)`,
           '--total-cards': gameState.cards.length
         } as React.CSSProperties}
       >
