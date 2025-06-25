@@ -136,7 +136,6 @@ export interface RegisterRequest {
 // Theme generation types
 export interface ThemeGenerationRequest {
   theme: string;
-  imageCount: number;
   style: 'cartoon' | 'realistic' | 'simple';
 }
 

@@ -100,4 +100,17 @@ frontend/src/
 
 The core game functionality is complete and ready for AI integration and backend development in Phase 2.
 
+## 🗄️ Database Architecture (Phase 2)
+
+### Theme Management Design
+**IMPORTANT**: Themes are SHARED across all users, not user-specific.
+
+- **Themes Table**: Uses `themeStyle` composite key (e.g., "dinosaurs-cartoon", "space-realistic")
+- **Reuse Logic**: Before generating new images, check if theme+style combination already exists
+- **Cost Optimization**: Prevents duplicate Bedrock API calls for same theme/style combinations
+- **User Customization**: Users select specific images from shared themes for their games
+- **Storage**: Generated images stored in S3, referenced by all users
+
+This design maximizes efficiency and minimizes AI generation costs while maintaining user choice.
+
 #####

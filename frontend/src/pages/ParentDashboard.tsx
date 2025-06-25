@@ -115,7 +115,7 @@ const ParentDashboard: React.FC = () => {
         <section className="dashboard-actions">
           <h2>Manage Games</h2>
           <div className="action-buttons">
-            <Link to="/create" className="action-button">
+            <Link to="/create-game" className="action-button">
               Create New Game
             </Link>
             <button className="action-button">

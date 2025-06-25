@@ -9,6 +9,7 @@ provider:
   stage: ${opt:stage, 'dev'}
   environment:
     NODE_ENV: ${self:provider.stage}
+    USE_MOCK_AI: true
 
 plugins:
   - serverless-offline
@@ -20,10 +21,43 @@ custom:
 
 functions:
   health:
-    handler: dist/handlers/health.handler
+    handler: dist/src/handlers/health.handler
     events:
       - http:
           path: /health
+          method: get
+          cors: true
+  
+  register:
+    handler: dist/src/handlers/auth.register
+    events:
+      - http:
+          path: /auth/register
+          method: post
+          cors: true
+  
+  login:
+    handler: dist/src/handlers/auth.login
+    events:
+      - http:
+          path: /auth/login
+          method: post
+          cors: true
+  
+  generateTheme:
+    handler: dist/src/handlers/themes.generateTheme
+    timeout: 300
+    events:
+      - http:
+          path: /themes/generate
+          method: post
+          cors: true
+  
+  getThemes:
+    handler: dist/src/handlers/themes.getThemes
+    events:
+      - http:
+          path: /themes
           method: get
           cors: true
 

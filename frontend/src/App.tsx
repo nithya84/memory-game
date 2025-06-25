@@ -10,7 +10,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/game" element={<Game />} />
-          <Route path="/create" element={<CreateGame />} />
+          <Route path="/create-game" element={<CreateGame />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/parent" element={<ParentDashboard />} />
         </Routes>

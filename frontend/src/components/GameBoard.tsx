@@ -14,9 +14,16 @@ export interface GameState {
   endTime: number | null;
 }
 
+interface CustomImage {
+  url: string;
+  altText: string;
+}
+
 interface GameBoardProps {
   difficulty?: number; // Number of pairs (3-20)
+  customImages?: CustomImage[];
   onGameComplete?: (stats: { moves: number; time: number }) => void;
+  onNewGame?: () => void;
 }
 
 // Animal theme images matching the Figma design
@@ -44,8 +51,10 @@ const ANIMAL_IMAGES = [
 ];
 
 const GameBoard: React.FC<GameBoardProps> = ({ 
-  difficulty = 6, 
-  onGameComplete 
+  difficulty = 6,
+  customImages,
+  onGameComplete,
+  onNewGame 
 }) => {
   const [gameState, setGameState] = useState<GameState>({
     cards: [],
@@ -61,16 +70,19 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   // Initialize game cards
   const initializeGame = useCallback(() => {
-    const selectedImages = ANIMAL_IMAGES.slice(0, difficulty);
+    const imagesToUse = customImages && customImages.length >= difficulty 
+      ? customImages.slice(0, difficulty)
+      : ANIMAL_IMAGES.slice(0, difficulty);
+    
     const cardPairs: CardData[] = [];
     
     // Create pairs of cards
-    selectedImages.forEach((image, index) => {
+    imagesToUse.forEach((image, index) => {
       // First card of the pair
       cardPairs.push({
         id: `card-${index}-a`,
         imageUrl: image.url,
-        altText: image.alt,
+        altText: image.altText || image.alt,
         isMatched: false
       });
       
@@ -78,7 +90,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       cardPairs.push({
         id: `card-${index}-b`,
         imageUrl: image.url,
-        altText: image.alt,
+        altText: image.altText || image.alt,
         isMatched: false
       });
     });
@@ -98,7 +110,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       startTime: null,
       endTime: null
     }));
-  }, [difficulty]);
+  }, [difficulty, customImages]);
 
   // Handle card click
   const handleCardClick = useCallback((cardId: string) => {
@@ -272,7 +284,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       )}
 
       <div className="game-controls">
-        <button onClick={initializeGame} className="new-game-btn">
+        <button onClick={onNewGame || initializeGame} className="new-game-btn">
           New Game
         </button>
       </div>

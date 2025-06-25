@@ -13,7 +13,7 @@ const Home: React.FC = () => {
         <Link to="/game" className="nav-button primary">
           Play Game
         </Link>
-        <Link to="/create" className="nav-button secondary">
+        <Link to="/create-game" className="nav-button secondary">
           Create Custom Game
         </Link>
         <Link to="/parent" className="nav-button tertiary">

@@ -66,7 +66,7 @@ const Settings: React.FC = () => {
           <h2>Game Settings</h2>
           
           <div className="setting-item">
-            <Link to="/create" className="setting-button">
+            <Link to="/create-game" className="setting-button">
               Create New Game
             </Link>
           </div>
