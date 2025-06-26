@@ -1,0 +1,366 @@
+.create-game-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.create-game-header {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-game-nav {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.create-game-nav a {
+  color: #495057;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.create-game-nav a:hover {
+  color: #007bff;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+}
+
+.create-game-main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin-bottom: 3rem;
+  font-size: 1rem;
+}
+
+.form-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 1rem;
+}
+
+.theme-input-container {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.theme-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.theme-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.theme-input::placeholder {
+  color: #adb5bd;
+}
+
+.style-selector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.style-option {
+  flex: 1;
+  position: relative;
+}
+
+.style-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.style-label {
+  display: block;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  background: white;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.style-option input[type="radio"]:checked + .style-label {
+  border-color: #007bff;
+  background: #f8fbff;
+  color: #007bff;
+}
+
+.style-option input[type="radio"]:hover + .style-label {
+  border-color: #007bff;
+}
+
+.generate-section {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.generate-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 150px;
+}
+
+.generate-button:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.generate-button:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}
+
+.images-section {
+  margin-top: 3rem;
+}
+
+.images-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.selection-counter {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.image-option {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.2s;
+  background: #f8f9fa;
+}
+
+.image-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.image-option.selected {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+}
+
+.image-option img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.selection-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.image-option.selected .selection-indicator {
+  opacity: 1;
+}
+
+.actions-section {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.create-game-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 200px;
+}
+
+.create-game-button:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.create-game-button:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}
+
+.regenerate-button {
+  background: transparent;
+  color: #6c757d;
+  border: 2px solid #e9ecef;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.regenerate-button:hover {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #f5c6cb;
+}
+
+.sample-games-link {
+  color: #6c757d;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.75rem 2rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.sample-games-link:hover {
+  border-color: #007bff;
+  color: #007bff;
+  text-decoration: none;
+}
+
+/* Loading state */
+.generate-button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.generate-button.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  color: white;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .create-game-main {
+    padding: 2rem 1rem;
+  }
+  
+  .create-game-header {
+    padding: 1rem;
+  }
+  
+  .style-selector {
+    flex-direction: column;
+  }
+  
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .actions-section {
+    flex-direction: column;
+  }
+}

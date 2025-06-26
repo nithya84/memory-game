@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiService, ThemeImage } from '../services/api';
+import './CreateGame.css';
 
 const CreateGame: React.FC = () => {
   const navigate = useNavigate();
@@ -61,36 +62,37 @@ const CreateGame: React.FC = () => {
 
   return (
     <div className="create-game-page">
-      <header className="page-header">
-        <Link to="/" className="back-button">
-          ← Back to Home
-        </Link>
-        <h1>Create Custom Game</h1>
+      <header className="create-game-header">
+        <div className="create-game-nav">
+          <Link to="/">EduPlay</Link>
+          <Link to="/">Home</Link>
+          <Link to="/game">Games</Link>
+          <Link to="/settings">Settings</Link>
+        </div>
+        <div className="user-profile">
+          <div className="user-avatar">👤</div>
+        </div>
       </header>
       
-      <main className="create-form">
-        <section className="theme-section">
-          <h2>Choose a Theme</h2>
-          <div className="theme-input-group">
-            <label htmlFor="theme-input">
-              What would you like your memory cards to show?
-            </label>
+      <main className="create-game-main">
+        <h1 className="page-title">Customize Memory Game</h1>
+        <p className="page-subtitle">
+          Select a theme and images for your child's memory game. You can choose up to 20 images.
+        </p>
+        
+        <section className="form-section">
+          <h2 className="section-title">Theme</h2>
+          <div className="theme-input-container">
             <input
-              id="theme-input"
               type="text"
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
-              placeholder="e.g., animals, vehicles, dinosaurs, space..."
+              placeholder="Dinosaurs"
               className="theme-input"
             />
-            <p className="input-help">
-              Enter any theme and we'll generate matching images!
-            </p>
           </div>
-        </section>
-        
-        <section className="style-section">
-          <h2>Choose Style</h2>
+          
+          <h2 className="section-title">Style</h2>
           <div className="style-selector">
             {(['cartoon', 'realistic', 'simple'] as const).map((styleOption) => (
               <label key={styleOption} className="style-option">
@@ -107,6 +109,16 @@ const CreateGame: React.FC = () => {
               </label>
             ))}
           </div>
+          
+          <div className="generate-section">
+            <button 
+              className={`generate-button ${isGenerating ? 'loading' : ''}`}
+              disabled={!theme.trim() || isGenerating}
+              onClick={handleGenerateImages}
+            >
+              {isGenerating ? 'Generating...' : 'Generate'}
+            </button>
+          </div>
         </section>
         
         {error && (
@@ -115,51 +127,38 @@ const CreateGame: React.FC = () => {
           </div>
         )}
         
-        {generatedImages.length === 0 ? (
-          <section className="actions">
-            <button 
-              className="generate-button primary"
-              disabled={!theme.trim() || isGenerating}
-              onClick={handleGenerateImages}
-            >
-              {isGenerating ? 'Generating Images...' : 'Generate Images'}
-            </button>
-            <Link to="/game" className="preview-button secondary">
-              Use Sample Images
-            </Link>
-          </section>
-        ) : (
-          <>
-            <section className="image-selector">
-              <h2>Select Images for Your Game</h2>
-              <p>Choose exactly 20 images from the generated set. Selected: {selectedImages.size}/20</p>
-              
-              <div className="image-grid">
-                {generatedImages.map((image) => (
-                  <div 
-                    key={image.id}
-                    className={`image-option ${selectedImages.has(image.id) ? 'selected' : ''}`}
-                    onClick={() => handleImageToggle(image.id)}
-                  >
-                    <img src={image.thumbnailUrl} alt={image.altText} />
-                    <div className="selection-indicator">
-                      {selectedImages.has(image.id) ? '✓' : ''}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+        {generatedImages.length > 0 && (
+          <section className="images-section">
+            <div className="images-header">
+              <h2 className="section-title">Images</h2>
+              <span className="selection-counter">Selected: {selectedImages.size}/20</span>
+            </div>
             
-            <section className="actions">
+            <div className="image-grid">
+              {generatedImages.map((image) => (
+                <div 
+                  key={image.id}
+                  className={`image-option ${selectedImages.has(image.id) ? 'selected' : ''}`}
+                  onClick={() => handleImageToggle(image.id)}
+                >
+                  <img src={image.thumbnailUrl} alt={image.altText} />
+                  <div className="selection-indicator">
+                    ✓
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="actions-section">
               <button 
-                className="create-game-button primary"
+                className="create-game-button"
                 disabled={selectedImages.size !== 20}
                 onClick={handleCreateGame}
               >
-                {selectedImages.size === 20 ? 'Create Game with 20 Images' : `Select ${20 - selectedImages.size} more images`}
+                {selectedImages.size === 20 ? 'Save Customization' : `Select ${20 - selectedImages.size} more images`}
               </button>
               <button 
-                className="regenerate-button secondary"
+                className="regenerate-button"
                 onClick={() => {
                   setGeneratedImages([]);
                   setSelectedImages(new Set());
@@ -167,8 +166,16 @@ const CreateGame: React.FC = () => {
               >
                 Generate Different Images
               </button>
-            </section>
-          </>
+            </div>
+          </section>
+        )}
+        
+        {generatedImages.length === 0 && (
+          <div className="actions-section">
+            <Link to="/game" className="sample-games-link">
+              Use Sample Images
+            </Link>
+          </div>
         )}
       </main>
     </div>

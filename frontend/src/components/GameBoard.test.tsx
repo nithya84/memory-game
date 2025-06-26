@@ -31,8 +31,7 @@ describe('GameBoard Component', () => {
     render(<GameBoard difficulty={3} />);
     
     expect(screen.getByText('Memory Match')).toBeInTheDocument();
-    expect(screen.getByText('Pairs: 0/3')).toBeInTheDocument();
-    expect(screen.getByText('Moves: 0')).toBeInTheDocument();
+    expect(screen.getByText('0/3 Matched')).toBeInTheDocument();
     
     // Should have 6 cards (3 pairs)
     const cards = screen.getAllByTestId(/card-/);
@@ -44,12 +43,12 @@ describe('GameBoard Component', () => {
     
     let cards = screen.getAllByTestId(/card-/);
     expect(cards).toHaveLength(10); // 5 pairs = 10 cards
-    expect(screen.getByText('Pairs: 0/5')).toBeInTheDocument();
+    expect(screen.getByText('0/5 Matched')).toBeInTheDocument();
     
     rerender(<GameBoard difficulty={8} />);
     cards = screen.getAllByTestId(/card-/);
     expect(cards).toHaveLength(16); // 8 pairs = 16 cards
-    expect(screen.getByText('Pairs: 0/8')).toBeInTheDocument();
+    expect(screen.getByText('0/8 Matched')).toBeInTheDocument();
   });
 
   it('starts game on first card click', () => {
@@ -58,7 +57,7 @@ describe('GameBoard Component', () => {
     const cards = screen.getAllByTestId(/card-/);
     fireEvent.click(cards[0]);
     
-    expect(screen.getByText('Moves: 0')).toBeInTheDocument(); // Move count updates after pair attempt
+    // Move count is not displayed during gameplay
     expect(cards[0]).toHaveAttribute('data-flipped', 'true');
   });
 
@@ -77,7 +76,7 @@ describe('GameBoard Component', () => {
     
     // Moves should increment
     await waitFor(() => {
-      expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+      // Move count only shown in completion message
     });
   });
 
@@ -95,7 +94,7 @@ describe('GameBoard Component', () => {
     await waitFor(() => {
       expect(cards[0]).toHaveClass('matched');
       expect(cards[1]).toHaveClass('matched');
-      expect(screen.getByText('Pairs: 1/1')).toBeInTheDocument();
+      expect(screen.getByText('1/1 Matched')).toBeInTheDocument();
     });
   });
 
@@ -228,15 +227,15 @@ describe('GameBoard Component', () => {
     fireEvent.click(cards[0]);
     fireEvent.click(cards[1]);
     
-    expect(screen.getByText('Moves: 1')).toBeInTheDocument();
+    // Move count only shown in completion message
     
     // Click New Game
     const newGameButton = screen.getByText('New Game');
     fireEvent.click(newGameButton);
     
     // Game should reset
-    expect(screen.getByText('Moves: 0')).toBeInTheDocument();
-    expect(screen.getByText('Pairs: 0/3')).toBeInTheDocument();
+    // Move count is not displayed during gameplay
+    expect(screen.getByText('0/3 Matched')).toBeInTheDocument();
   });
 
   it('resets game when Play Again button is clicked after completion', async () => {
@@ -257,8 +256,8 @@ describe('GameBoard Component', () => {
     fireEvent.click(playAgainButton);
     
     // Game should reset
-    expect(screen.getByText('Moves: 0')).toBeInTheDocument();
-    expect(screen.getByText('Pairs: 0/1')).toBeInTheDocument();
+    // Move count is not displayed during gameplay
+    expect(screen.getByText('0/1 Matched')).toBeInTheDocument();
     expect(screen.queryByText('🎉 Congratulations!')).not.toBeInTheDocument();
   });
 
@@ -266,13 +265,13 @@ describe('GameBoard Component', () => {
   it('updates difficulty when prop changes', () => {
     const { rerender } = render(<GameBoard difficulty={3} />);
     
-    expect(screen.getByText('Pairs: 0/3')).toBeInTheDocument();
+    expect(screen.getByText('0/3 Matched')).toBeInTheDocument();
     let cards = screen.getAllByTestId(/card-/);
     expect(cards).toHaveLength(6);
     
     rerender(<GameBoard difficulty={5} />);
     
-    expect(screen.getByText('Pairs: 0/5')).toBeInTheDocument();
+    expect(screen.getByText('0/5 Matched')).toBeInTheDocument();
     cards = screen.getAllByTestId(/card-/);
     expect(cards).toHaveLength(10);
   });

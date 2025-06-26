@@ -82,7 +82,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       cardPairs.push({
         id: `card-${index}-a`,
         imageUrl: image.url,
-        altText: image.altText || image.alt,
+        altText: image.altText,
         isMatched: false
       });
       
@@ -90,7 +90,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       cardPairs.push({
         id: `card-${index}-b`,
         imageUrl: image.url,
-        altText: image.altText || image.alt,
+        altText: image.altText,
         isMatched: false
       });
     });
@@ -223,14 +223,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
   // Calculate grid columns optimized for desktop viewing
   const getGridColumns = () => {
     const totalCards = difficulty * 2;
-    console.log(`Difficulty: ${difficulty}, Total cards: ${totalCards}`);
     if (totalCards <= 12) return 3; // 3x3 or 4x3
     if (totalCards <= 16) return 4; // 4x4
     if (totalCards <= 24) return 6; // 4x6
     if (totalCards <= 32) return 8; // 4x8
-    const columns = 10; // 4x10 for 40 cards (20 pairs)
-    console.log(`Using ${columns} columns for ${totalCards} cards`);
-    return columns;
+    return 10; // 4x10 for 40 cards (20 pairs)
   };
 
   const isCardFlipped = (cardId: string) => {
