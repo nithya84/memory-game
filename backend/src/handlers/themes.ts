@@ -1,12 +1,38 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { QueryCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
+const uuidv4 = randomUUID;
 import Joi from 'joi';
 import { docClient, TABLE_NAMES } from '../config/database';
 import { extractUserFromEvent } from '../utils/auth';
 import { generateImages, createMockImages } from '../services/imageGeneration';
 import { uploadImageToS3 } from '../services/s3Service';
-import { Theme, ThemeImage, ThemeGenerationRequest } from '../../../shared/src/types';
+// Temporarily commented out to isolate dependency issue
+// import { Theme, ThemeImage, ThemeGenerationRequest } from 'memory-game-shared';
+
+// Inline types for testing
+interface ThemeImage {
+  id: string;
+  url: string;
+  thumbnailUrl: string;
+  altText: string;
+  safetyScore: number;
+  selected: boolean;
+}
+
+interface Theme {
+  id: string;
+  userId: string;
+  name: string;
+  images: ThemeImage[];
+  createdAt: string;
+  lastUsed?: string;
+}
+
+interface ThemeGenerationRequest {
+  theme: string;
+  style: 'cartoon' | 'realistic' | 'simple';
+}
 
 const generateSchema = Joi.object({
   theme: Joi.string().min(1).max(50).pattern(/^[a-zA-Z0-9\s]+$/).required(),
@@ -15,6 +41,7 @@ const generateSchema = Joi.object({
 
 export const generateTheme: APIGatewayProxyHandler = async (event) => {
   try {
+    console.log('generateTheme called with event:', JSON.stringify(event, null, 2));
     // TODO: Re-enable authentication in production
     // const user = extractUserFromEvent(event);
     // if (!user) {

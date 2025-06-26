@@ -2,15 +2,28 @@
 
 A customizable memory game designed for children on the autism spectrum that uses AI to generate themed images based on their special interests.
 
-## 🎯 Current Status: Phase 1 Complete ✅
+## 🎯 Current Status
 
-**The core memory game is fully functional and production-ready!**
+### ✅ Phase 1: Core Memory Game - Complete
 - Complete game mechanics with 3-20 card pair support
 - Smooth 3D flip animations and responsive design
 - Comprehensive test coverage (28 tests)
 - Accessibility features and mobile support
 
-**Ready for Phase 2:** AI integration and backend development
+### 🚧 Phase 2A: Backend Infrastructure - Partial
+- ✅ Backend deployed to AWS (Lambda functions working)
+- ✅ API endpoints responding with mock data
+- ✅ Frontend UI for custom theme creation (local only)
+- ❌ Frontend AWS deployment (blocked by permission issues)
+- ❌ DynamoDB functionality (schema defined, not tested)
+- ❌ Real Bedrock AI integration (mock service only)
+- ⚠️ Security review needed
+
+### 🔄 Next: Phase 2B
+- Resolve AWS deployment permissions
+- Test DynamoDB operations
+- Switch from mock to real Bedrock AI
+- Security audit and hardening
 
 ## Project Structure
 
@@ -29,24 +42,22 @@ memory_game/
 ### Prerequisites
 
 - Node.js 18+ and npm 9+
-- AWS CLI configured with appropriate permissions
-- Access to Amazon Bedrock service
+- AWS CLI configured (for deployment only)
 
-### Installation
+### Quick Start (Local Development)
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+# Install dependencies
+npm install
 
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env.local
-   cp frontend/.env.example frontend/.env.local
-   ```
+# Start frontend only (working game)
+npm run dev:frontend
 
-4. Fill in the environment variables with your AWS credentials and configuration
+# Start backend locally (mock AI service)
+npm run dev:backend
+```
+
+**Note:** Full deployment requires AWS permissions setup. See [README-DEPLOYMENT.md](./README-DEPLOYMENT.md) for deployment guide.
 
 ### Development Commands
 
@@ -124,37 +135,40 @@ This project uses npm workspaces to manage the monorepo structure:
 
 ## Features
 
-### ✅ Currently Working
-- Complete memory matching game (3-20 card pairs)
-- 3D card flip animations with smooth transitions
-- Game state tracking (moves, time, completion)
-- Responsive design for tablets and mobile devices
-- Accessibility features including keyboard navigation
-- Autism-friendly design with calm colors and clear interface
+### ✅ Working Features
+- **Memory Game**: Complete gameplay with 3-20 card pairs
+- **Animations**: 3D card flip transitions
+- **Responsive Design**: Works on mobile, tablet, desktop
+- **Accessibility**: Keyboard navigation, screen reader support
+- **Custom Themes**: Frontend UI (local development only)
+- **Backend API**: Deployed to AWS with mock AI service
 
-### 🚧 Planned for Phase 2
-- AI-generated themed images based on special interests
-- Parent dashboard with analytics and game management
-- Custom game creation and theme management
-- Advanced settings and preferences
+### 🚧 In Development
+- **Real AI Integration**: Bedrock image generation (coded, not tested)
+- **Database**: DynamoDB operations (schema ready, not tested)
+- **Deployment**: Frontend to AWS (blocked by permissions)
+- **Security**: Authentication and data protection audit needed
 
-## Sprint Progress
+## Development Status
 
-**Phase 1: Foundation & Core Logic - ✅ COMPLETE**
-- ✅ Repository structure setup
-- ✅ Frontend application setup with React + TypeScript
-- ✅ Core game logic implementation
-- ✅ Game board with dynamic grid layout
-- ✅ Card components with 3D flip animations
-- ✅ Game state management and win detection
-- ✅ Comprehensive test suite (28 tests)
-- ✅ Responsive design and accessibility features
+**Phase 1: Core Game - ✅ Complete**
+- ✅ Memory game with full functionality
+- ✅ 28 comprehensive tests passing
+- ✅ Responsive design and accessibility
 
-**Phase 2: AI Integration & Backend - 🚧 READY TO START**
-- 🚧 Backend infrastructure setup (AWS Lambda, DynamoDB)
-- 🚧 Amazon Bedrock integration for AI image generation
-- 🚧 Theme creation and management system
-- 🚧 Parent dashboard with analytics
+**Phase 2A: Backend Infrastructure - 🚧 Partial**
+- ✅ AWS Lambda functions deployed and working
+- ✅ Custom theme creation UI (local frontend)
+- ✅ Mock AI service responding correctly
+- ❌ Frontend AWS deployment (permission issues)
+- ❌ DynamoDB operations (not tested)
+- ❌ Real Bedrock AI (not tested)
+
+**Next Steps:**
+- Fix AWS deployment permissions
+- Test database operations
+- Security review and hardening
+- Switch to production AI service
 
 ## Contributing
 

@@ -9,12 +9,56 @@ provider:
   stage: ${opt:stage, 'dev'}
   environment:
     NODE_ENV: ${self:provider.stage}
-    USE_MOCK_AI: true
+    USE_MOCK_AI: ${self:custom.environment.${self:provider.stage}.USE_MOCK_AI}
+    REGION: ${self:provider.region}
+    S3_BUCKET: ${self:custom.bucketName}
+    USERS_TABLE: ${self:service}-users-${self:provider.stage}
+    THEMES_TABLE: ${self:service}-themes-${self:provider.stage}
+    GAMES_TABLE: ${self:service}-games-${self:provider.stage}
+    SESSIONS_TABLE: ${self:service}-sessions-${self:provider.stage}
+    JWT_SECRET: ${self:custom.environment.${self:provider.stage}.JWT_SECRET}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-*-${self:provider.stage}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-*-${self:provider.stage}/index/*"
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+          Resource:
+            - "arn:aws:s3:::${self:custom.bucketName}/*"
+        - Effect: Allow
+          Action:
+            - bedrock:InvokeModel
+          Resource:
+            - "arn:aws:bedrock:${self:provider.region}::foundation-model/amazon.titan-image-generator-v1"
 
 plugins:
   - serverless-offline
 
 custom:
+  bucketName: memory-game-images-${self:provider.stage}
+  environment:
+    dev:
+      USE_MOCK_AI: true
+      JWT_SECRET: development-secret-key-change-in-production
+    staging:
+      USE_MOCK_AI: true
+      JWT_SECRET: staging-secret-key-change-in-production
+    prod:
+      USE_MOCK_AI: false
+      JWT_SECRET: ${env:JWT_SECRET_PROD, 'placeholder-will-be-overridden'}
   serverless-offline:
     httpPort: 3001
     host: 0.0.0.0
@@ -51,7 +95,13 @@ functions:
       - http:
           path: /themes/generate
           method: post
-          cors: true
+          cors:
+            origin: 'http://localhost:5173,http://localhost:5174'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Api-Key
+            allowCredentials: false
   
   getThemes:
     handler: dist/src/handlers/themes.getThemes
@@ -62,4 +112,125 @@ functions:
           cors: true
 
 package:
-  individually: true
+  patterns:
+    - '../node_modules/**'
+    - 'dist/**'
+    - '!../node_modules/aws-sdk/**'
+    - '!../node_modules/@types/**'
+    - '!../node_modules/**/*.d.ts'
+    - '!../node_modules/**/test/**'
+    - '!../node_modules/**/tests/**'
+    - '!../node_modules/**/*.md'
+    - '!../node_modules/**/README*'
+    - '!../node_modules/**/docs/**'
+    - '!../node_modules/**/*.map'
+
+resources:
+  Resources:
+    # S3 Bucket for image storage
+    ImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucketName}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders: ['*']
+              AllowedMethods: [GET, PUT, POST, DELETE, HEAD]
+              AllowedOrigins: ['*']
+              MaxAge: 3000
+
+    # Users Table
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-users-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: EmailIndex
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # Themes Table  
+    ThemesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-themes-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: themeStyle
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: ThemeStyleIndex
+            KeySchema:
+              - AttributeName: themeStyle
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # Games Table
+    GamesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-games-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # Sessions Table
+    SessionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-sessions-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: GameIdIndex
+            KeySchema:
+              - AttributeName: gameId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: expiresAt
+          Enabled: true

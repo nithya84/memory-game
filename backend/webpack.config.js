@@ -22,15 +22,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-      '@shared': path.resolve(__dirname, '../shared/src'),
-    },
-  },
-  output: {
-    libraryTarget: 'commonjs2',
-    path: path.join(__dirname, '.webpack'),
-    filename: '[name].js',
   },
   externals: ['aws-sdk'],
   optimization: {

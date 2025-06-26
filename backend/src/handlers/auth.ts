@@ -1,6 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
+const uuidv4 = randomUUID;
 import Joi from 'joi';
 import { docClient, TABLE_NAMES } from '../config/database';
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth';

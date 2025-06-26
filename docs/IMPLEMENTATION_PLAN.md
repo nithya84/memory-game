@@ -227,6 +227,60 @@ Analytics: {
 - Optimize based on real usage patterns
 - Begin planning Phase 2 features
 
+## Security & Infrastructure TODOs
+
+### 🚨 CRITICAL SECURITY ISSUES (Phase 2B Priority)
+
+**1. JWT Secrets in Configuration**
+- **Issue**: Hardcoded JWT secrets in `backend/serverless.yml` for dev/staging environments
+- **Risk**: Development secrets exposed in version control
+- **Fix Required**: Move all secrets to environment variables or AWS Parameter Store
+- **Priority**: HIGH - Must fix before any production deployment
+
+**2. S3 Bucket Public Access**
+- **Issue**: `deploy.sh` creates S3 buckets with `"Principal": "*"` public access
+- **Risk**: Overly permissive bucket policies for production
+- **Fix Required**: Implement CloudFront with Origin Access Control instead of public buckets
+- **Priority**: HIGH - Security vulnerability for production
+
+**3. CORS Configuration**
+- **Issue**: CORS allows hardcoded localhost origins, not environment-specific
+- **Risk**: Potential cross-origin attacks if misconfigured in production
+- **Fix Required**: Environment-specific CORS origins
+- **Priority**: MEDIUM - Required before production
+
+**4. Environment Variable Dependencies**
+- **Issue**: Production deployment depends on manual environment variable setup
+- **Risk**: Missing secrets could cause deployment failures or security gaps
+- **Fix Required**: Validation checks and secure secret management
+- **Priority**: MEDIUM - Operational risk
+
+### CORS Configuration Enhancement
+**Current Status**: Basic localhost-only CORS setup for development
+**TODO**: Implement stage-specific CORS configuration for better security:
+- Dev: Allow localhost ports only (currently: 5173, 5174)
+- Staging: Allow staging domain only
+- Production: Allow production domain only
+**Priority**: Medium - Required before production deployment
+
+### S3 Frontend Deployment Setup
+**Current Status**: S3 bucket deployment blocked by "Block Public Access" policy
+**TODO**: Set up proper staging frontend deployment on S3:
+1. **Configure S3 Public Access**: Disable Block Public Access for staging bucket
+   ```bash
+   aws s3api put-public-access-block \
+     --bucket memory-game-frontend-staging \
+     --public-access-block-configuration \
+     "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+   ```
+2. **Alternative: CloudFront Distribution** (Recommended for production):
+   - Create CloudFront distribution with Origin Access Control
+   - Point to S3 bucket without making it public
+   - Configure custom domain and HTTPS certificate
+3. **Update CORS Configuration**: Allow staging S3 domain in backend CORS
+4. **Test End-to-End**: Verify staging frontend on S3 connects to staging backend
+**Priority**: Medium - Required for true staging environment testing
+
 ### Future Enhancement Roadmap
 - Multiplayer functionality for collaborative play
 - Sound-based matching games
