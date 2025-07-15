@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 const uuidv4 = randomUUID;
 
 const s3Client = new S3Client({
-  region: process.env.REGION || 'us-east-2'
+  region: process.env.REGION || 'us-east-1'
 });
 
 const BUCKET_NAME = process.env.S3_BUCKET || 'memory-game-images';
@@ -46,7 +46,8 @@ export const uploadImageToS3 = async (
     CacheControl: 'max-age=31536000'
   }));
   
-  const baseUrl = `https://${BUCKET_NAME}.s3.${process.env.REGION || 'us-east-2'}.amazonaws.com`;
+  const cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN;
+  const baseUrl = cloudFrontDomain ? `https://${cloudFrontDomain}` : `https://${BUCKET_NAME}.s3.${process.env.REGION || 'us-east-1'}.amazonaws.com`;
   
   return {
     imageId,
