@@ -4,14 +4,15 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: nodejs18.x
-  region: us-east-2
+  runtime: nodejs20.x
+  region: us-east-1
   stage: ${opt:stage, 'dev'}
   environment:
     NODE_ENV: ${self:provider.stage}
     USE_MOCK_AI: ${self:custom.environment.${self:provider.stage}.USE_MOCK_AI}
     REGION: ${self:provider.region}
     S3_BUCKET: ${self:custom.bucketName}
+    CLOUDFRONT_DOMAIN: !GetAtt CloudFrontDistribution.DomainName
     USERS_TABLE: ${self:service}-users-${self:provider.stage}
     THEMES_TABLE: ${self:service}-themes-${self:provider.stage}
     GAMES_TABLE: ${self:service}-games-${self:provider.stage}
@@ -48,7 +49,8 @@ plugins:
   - serverless-offline
 
 custom:
-  bucketName: memory-game-images-${self:provider.stage}
+  bucketName: memory-game-images-${self:provider.stage}-${sls:instanceId}
+  frontendBucketName: memory-game-frontend-${self:provider.stage}
   environment:
     dev:
       USE_MOCK_AI: true
@@ -132,17 +134,107 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.bucketName}
-        PublicAccessBlockConfiguration:
-          BlockPublicAcls: false
-          BlockPublicPolicy: false
-          IgnorePublicAcls: false
-          RestrictPublicBuckets: false
         CorsConfiguration:
           CorsRules:
             - AllowedHeaders: ['*']
               AllowedMethods: [GET, PUT, POST, DELETE, HEAD]
               AllowedOrigins: ['*']
               MaxAge: 3000
+
+    # Frontend S3 Bucket
+    FrontendBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.frontendBucketName}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders: ['*']
+              AllowedMethods: [GET, HEAD]
+              AllowedOrigins: ['*']
+              MaxAge: 3000
+
+    # CloudFront Origin Access Control
+    CloudFrontOriginAccessControl:
+      Type: AWS::CloudFront::OriginAccessControl
+      Properties:
+        OriginAccessControlConfig:
+          Name: ${self:custom.bucketName}-OAC
+          OriginAccessControlOriginType: s3
+          SigningBehavior: always
+          SigningProtocol: sigv4
+
+    # CloudFront Distribution for image serving
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Origins:
+            - Id: ImagesOrigin
+              DomainName: !GetAtt ImagesBucket.RegionalDomainName
+              S3OriginConfig:
+                OriginAccessIdentity: ''
+              OriginAccessControlId: !Ref CloudFrontOriginAccessControl
+            - Id: FrontendOrigin
+              DomainName: !GetAtt FrontendBucket.RegionalDomainName
+              S3OriginConfig:
+                OriginAccessIdentity: ''
+              OriginAccessControlId: !Ref CloudFrontOriginAccessControl
+          Enabled: true
+          DefaultRootObject: index.html
+          DefaultCacheBehavior:
+            TargetOriginId: FrontendOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # Managed-CachingOptimized
+            OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # Managed-CORS-S3Origin
+            ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03  # Managed-SecurityHeadersPolicy
+          CacheBehaviors:
+            - PathPattern: "/images/*"
+              TargetOriginId: ImagesOrigin
+              ViewerProtocolPolicy: redirect-to-https
+              CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+              OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+              ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03
+          PriceClass: PriceClass_100  # Use only North America and Europe edge locations
+
+    # S3 Bucket Policy for CloudFront access only
+    ImagesBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref ImagesBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: cloudfront.amazonaws.com
+              Action: 's3:GetObject'
+              Resource: !Sub "arn:aws:s3:::${ImagesBucket}/*"
+              Condition:
+                StringEquals:
+                  "AWS:SourceArn": !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+      DependsOn:
+        - ImagesBucket
+        - CloudFrontDistribution
+
+    # Frontend Bucket Policy for CloudFront access only
+    FrontendBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref FrontendBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: cloudfront.amazonaws.com
+              Action: 's3:GetObject'
+              Resource: !Sub "arn:aws:s3:::${FrontendBucket}/*"
+              Condition:
+                StringEquals:
+                  "AWS:SourceArn": !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+      DependsOn:
+        - FrontendBucket
+        - CloudFrontDistribution
 
     # Users Table
     UsersTable:
@@ -234,3 +326,8 @@ resources:
         TimeToLiveSpecification:
           AttributeName: expiresAt
           Enabled: true
+
+  Outputs:
+    CloudFrontDomainName:
+      Description: CloudFront distribution domain name
+      Value: !GetAtt CloudFrontDistribution.DomainName
