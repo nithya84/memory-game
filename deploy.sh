@@ -36,31 +36,17 @@ echo "6. Deploying frontend to S3..."
 BUCKET_NAME="memory-game-frontend-$STAGE"
 
 # Create S3 bucket for frontend if it doesn't exist
-aws s3 mb s3://$BUCKET_NAME --region us-east-2 2>/dev/null || true
+aws s3 mb s3://$BUCKET_NAME --region us-east-1 2>/dev/null || true
 
-# Configure bucket for static website hosting
-aws s3 website s3://$BUCKET_NAME --index-document index.html --error-document index.html
-
-# Upload frontend files
+# Upload frontend files (private bucket - will be served via CloudFront)
 aws s3 sync dist/ s3://$BUCKET_NAME --delete
 
-# Make bucket publicly readable
-aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "PublicReadGetObject",
-      "Effect": "Allow", 
-      "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::'$BUCKET_NAME'/*"
-    }
-  ]
-}'
+echo "Frontend uploaded to private S3 bucket: $BUCKET_NAME"
+echo "Frontend will be accessible via CloudFront distribution (check backend deployment output)"
 
 echo "Deployment complete!"
 echo "Backend API: https://$(cd ../backend && serverless info --stage $STAGE | grep ServiceEndpoint | cut -d' ' -f2)"
-echo "Frontend URL: http://$BUCKET_NAME.s3-website.us-east-2.amazonaws.com"
+echo "Frontend URL: https://$(cd ../backend && aws cloudformation describe-stacks --stack-name memory-game-api-$STAGE --region us-east-1 --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDomainName`].OutputValue' --output text 2>/dev/null || echo 'CloudFront URL not found')"
 echo ""
 echo "Next steps:"
 echo "1. Set up custom domain with CloudFront for production"

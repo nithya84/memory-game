@@ -12,7 +12,7 @@
    # Enter your:
    # - AWS Access Key ID
    # - AWS Secret Access Key  
-   # - Default region: us-east-2
+   # - Default region: us-east-1
    # - Default output format: json
    ```
 
@@ -118,7 +118,21 @@ If you need granular permissions, your AWS user requires:
                 "iam:TagRole",
                 "iam:UntagRole",
                 "iam:ListRoleTags",
-                "bedrock:InvokeModel"
+                "bedrock:InvokeModel",
+                "cloudfront:CreateDistribution",
+                "cloudfront:GetDistribution",
+                "cloudfront:GetDistributionConfig",
+                "cloudfront:UpdateDistribution",
+                "cloudfront:DeleteDistribution",
+                "cloudfront:ListDistributions",
+                "cloudfront:CreateOriginAccessControl",
+                "cloudfront:GetOriginAccessControl",
+                "cloudfront:UpdateOriginAccessControl",
+                "cloudfront:DeleteOriginAccessControl",
+                "cloudfront:ListOriginAccessControls",
+                "cloudfront:TagResource",
+                "cloudfront:UntagResource",
+                "cloudfront:ListTagsForResource"
             ],
             "Resource": "*"
         }
@@ -129,3 +143,4 @@ If you need granular permissions, your AWS user requires:
 ### Common Permission Issues
 - **Tagging Permissions**: AWS now requires explicit tagging permissions (`logs:TagResource`, `iam:TagRole`)
 - **Bedrock Access**: Requires `bedrock:InvokeModel` for AI image generation
+- **CloudFront Access**: Requires CloudFront permissions for CDN image serving and Origin Access Control (OAC)
