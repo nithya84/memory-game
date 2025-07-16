@@ -10,7 +10,7 @@ const { DynamoDBDocumentClient, PutCommand, QueryCommand, GetCommand } = require
 const { randomUUID } = require('crypto');
 
 // AWS Configuration
-const REGION = 'us-east-2'; // Keep DynamoDB in us-east-2
+const REGION = 'us-east-1'; // Keep DynamoDB in us-east-1
 const dynamoClient = new DynamoDBClient({ region: REGION });
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 

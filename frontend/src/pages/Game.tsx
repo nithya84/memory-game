@@ -31,7 +31,8 @@ const Game: React.FC = () => {
     setGameKey(prev => prev + 1);
   };
 
-  const maxPairs = state?.customImages ? Math.min(state.customImages.length, 20) : 20;
+  const maxSelection = parseInt(import.meta.env.VITE_MAX_SELECTION_COUNT || '20');
+  const maxPairs = state?.customImages ? Math.min(state.customImages.length, maxSelection) : maxSelection;
 
   return (
     <div className="game-page">

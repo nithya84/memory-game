@@ -229,6 +229,15 @@ Analytics: {
 
 ## Security & Infrastructure TODOs
 
+### 🐛 KNOWN BUGS
+
+**1. Dev Frontend Environment Variable Not Loading**
+- **Issue**: Deployed dev frontend shows 20 images instead of 3 despite `VITE_MAX_SELECTION_COUNT=3` in `.env.dev`
+- **Symptoms**: Local build correctly uses `parseInt("3")` but deployed version still shows 20
+- **Likely Cause**: CloudFront caching old build files or S3 deployment not updating properly
+- **Fix Required**: Clear CloudFront cache or verify S3 deployment is uploading new build files
+- **Priority**: HIGH - Blocking proper dev environment testing
+
 ### 🚨 CRITICAL SECURITY ISSUES (Phase 2B Priority)
 
 **1. JWT Secrets in Configuration**

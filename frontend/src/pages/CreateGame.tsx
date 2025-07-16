@@ -11,6 +11,9 @@ const CreateGame: React.FC = () => {
   const [generatedImages, setGeneratedImages] = useState<ThemeImage[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [error, setError] = useState('');
+  
+  // Configurable selection count for testing
+  const maxSelection = parseInt(import.meta.env.VITE_MAX_SELECTION_COUNT || '20');
 
   const handleGenerateImages = async () => {
     if (!theme.trim()) return;
@@ -39,15 +42,15 @@ const CreateGame: React.FC = () => {
     const newSelected = new Set(selectedImages);
     if (newSelected.has(imageId)) {
       newSelected.delete(imageId);
-    } else if (newSelected.size < 20) {
+    } else if (newSelected.size < maxSelection) {
       newSelected.add(imageId);
     }
     setSelectedImages(newSelected);
   };
 
   const handleCreateGame = () => {
-    if (selectedImages.size !== 20) {
-      setError('Please select exactly 20 images');
+    if (selectedImages.size !== maxSelection) {
+      setError(`Please select exactly ${maxSelection} images`);
       return;
     }
     
@@ -77,7 +80,7 @@ const CreateGame: React.FC = () => {
       <main className="create-game-main">
         <h1 className="page-title">Customize Memory Game</h1>
         <p className="page-subtitle">
-          Select a theme and images for your child's memory game. You can choose up to 20 images.
+          Select a theme and images for your child's memory game. You can choose up to {maxSelection} images.
         </p>
         
         <section className="form-section">
@@ -131,7 +134,7 @@ const CreateGame: React.FC = () => {
           <section className="images-section">
             <div className="images-header">
               <h2 className="section-title">Images</h2>
-              <span className="selection-counter">Selected: {selectedImages.size}/20</span>
+              <span className="selection-counter">Selected: {selectedImages.size}/{maxSelection}</span>
             </div>
             
             <div className="image-grid">
@@ -152,10 +155,10 @@ const CreateGame: React.FC = () => {
             <div className="actions-section">
               <button 
                 className="create-game-button"
-                disabled={selectedImages.size !== 20}
+                disabled={selectedImages.size !== maxSelection}
                 onClick={handleCreateGame}
               >
-                {selectedImages.size === 20 ? 'Save Customization' : `Select ${20 - selectedImages.size} more images`}
+                {selectedImages.size === maxSelection ? 'Save Customization' : `Select ${maxSelection - selectedImages.size} more images`}
               </button>
               <button 
                 className="regenerate-button"

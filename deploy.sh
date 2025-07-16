@@ -16,6 +16,7 @@ fi
 
 echo "1. Installing backend dependencies..."
 cd backend
+npm run clean
 npm install
 
 echo "2. Building backend..."

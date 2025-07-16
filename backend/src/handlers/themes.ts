@@ -108,9 +108,10 @@ export const generateTheme: APIGatewayProxyHandler = async (event) => {
 
     // Step 1: Generate diverse subjects using LLM
     console.log('Generating theme descriptions...');
+    const imageCount = parseInt(process.env.IMAGE_GENERATION_COUNT || '25');
     const themeDescriptions = useMock 
-      ? createMockThemeDescriptions({ theme: body.theme, style: body.style, count: 25 })
-      : await generateThemeDescriptions({ theme: body.theme, style: body.style, count: 25 });
+      ? createMockThemeDescriptions({ theme: body.theme, style: body.style, count: imageCount })
+      : await generateThemeDescriptions({ theme: body.theme, style: body.style, count: imageCount });
     
     // Step 2: Generate images for each specific subject
     console.log('Generating images for subjects...');
