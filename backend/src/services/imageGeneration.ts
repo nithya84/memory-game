@@ -6,9 +6,8 @@ const bedrockClient = new BedrockRuntimeClient({
 });
 
 export interface ImageGenerationRequest {
-  theme: string;
+  subjects: string[];
   style: 'cartoon' | 'realistic' | 'simple';
-  imageCount: number;
 }
 
 export interface GeneratedImage {
@@ -23,18 +22,14 @@ export const generateImages = async (request: ImageGenerationRequest): Promise<G
     simple: 'minimalist, simple design, clean lines, basic shapes'
   };
   
-  const prompt = `A variety of "${request.theme}" in ${stylePrompts[request.style]}, suitable for children's memory game, isolated on white background, no text`;
   const baseSeed = Math.floor(Math.random() * 1000000);
   
-  const allImages: GeneratedImage[] = [];
-  const maxImagesPerBatch = 5;
-  const totalBatches = Math.ceil(request.imageCount / maxImagesPerBatch);
-  
-  for (let batch = 0; batch < totalBatches; batch++) {
-    console.log(`Generating batch ${batch + 1} of ${totalBatches}`);
-    const remainingImages = request.imageCount - (batch * maxImagesPerBatch);
-    const batchSize = Math.min(maxImagesPerBatch, remainingImages);
-    const batchSeed = baseSeed + (batch * 1000); // Vary seed per batch
+  // Generate images concurrently for all subjects
+  const imagePromises = request.subjects.map(async (subject, i) => {
+    const prompt = `${subject} in ${stylePrompts[request.style]}, friendly, non-threatening, suitable for children's memory game, isolated on white background, no text`;
+    const seed = baseSeed + i;
+    
+    console.log(`Preparing to generate image for: ${subject}`); // Log before sending request
     
     const payload = {
       taskType: "TEXT_IMAGE",
@@ -43,11 +38,11 @@ export const generateImages = async (request: ImageGenerationRequest): Promise<G
         negativeText: "text, words, letters, inappropriate content, scary, violent"
       },
       imageGenerationConfig: {
-        numberOfImages: batchSize,
+        numberOfImages: 1,
         height: 512,
         width: 512,
         cfgScale: 8.0,
-        seed: batchSeed
+        seed: seed
       }
     };
 
@@ -59,31 +54,33 @@ export const generateImages = async (request: ImageGenerationRequest): Promise<G
 
       const response = await bedrockClient.send(command);
       const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-      console.log(`Received response for batch ${batch + 1}:`, responseBody);
+      
       if (responseBody.images && responseBody.images.length > 0) {
-        const batchImages = responseBody.images.map((base64Data: string, index: number) => ({
-          base64Data,
-          seed: batchSeed + index
-        }));
-        allImages.push(...batchImages);
+        console.log(`Successfully generated image for: ${subject}`); // Log on success
+        return {
+          base64Data: responseBody.images[0],
+          seed: seed
+        };
       } else {
-        throw new Error(`No images returned from Bedrock for batch ${batch + 1}`);
+        throw new Error(`No image returned from Bedrock for ${subject}`);
       }
     } catch (error) {
-      console.error(`Failed to generate images for batch ${batch + 1}:`, error);
-      throw new Error(`Image generation failed for ${request.theme} batch ${batch + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error(`Failed to generate image for ${subject}:`, error);
+      // Re-throw to ensure Promise.all rejects if any fails
+      throw new Error(`Image generation failed for ${subject}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  }
+  });
   
+  const allImages = await Promise.all(imagePromises);
   return allImages;
 };
 
 export const createMockImages = (request: ImageGenerationRequest): GeneratedImage[] => {
   const mockImages: GeneratedImage[] = [];
   
-  for (let i = 0; i < request.imageCount; i++) {
+  for (let i = 0; i < request.subjects.length; i++) {
     mockImages.push({
-      base64Data: `mock-base64-data-${request.theme}-${request.style}-${i}`,
+      base64Data: `mock-base64-data-${request.subjects[i]}-${request.style}-${i}`,
       seed: Math.floor(Math.random() * 1000000)
     });
   }

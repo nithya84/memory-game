@@ -6,6 +6,7 @@ import Joi from 'joi';
 import { docClient, TABLE_NAMES } from '../config/database';
 import { extractUserFromEvent } from '../utils/auth';
 import { generateImages, createMockImages } from '../services/imageGeneration';
+import { generateThemeDescriptions, createMockThemeDescriptions } from '../services/llmService';
 import { uploadImageToS3 } from '../services/s3Service';
 // Temporarily commented out to isolate dependency issue
 // import { Theme, ThemeImage, ThemeGenerationRequest } from 'memory-game-shared';
@@ -16,6 +17,7 @@ interface ThemeImage {
   url: string;
   thumbnailUrl: string;
   altText: string;
+  description: string;
   safetyScore: number;
   selected: boolean;
 }
@@ -75,7 +77,7 @@ export const generateTheme: APIGatewayProxyHandler = async (event) => {
 
     const themeStyle = `${body.theme.toLowerCase()}-${body.style}`;
     
-    // Skip database check in development mode
+    // Use mock AI for local development only
     const useMock = process.env.USE_MOCK_AI === 'true';
     if (!useMock) {
       // Check if theme already exists
@@ -104,46 +106,56 @@ export const generateTheme: APIGatewayProxyHandler = async (event) => {
       }
     }
 
-    // Generate new images - always 25 for parent selection
-    const imageRequest = { ...body, imageCount: 25 };
+    // Step 1: Generate diverse subjects using LLM
+    console.log('Generating theme descriptions...');
+    const themeDescriptions = useMock 
+      ? createMockThemeDescriptions({ theme: body.theme, style: body.style, count: 25 })
+      : await generateThemeDescriptions({ theme: body.theme, style: body.style, count: 25 });
+    
+    // Step 2: Generate images for each specific subject
+    console.log('Generating images for subjects...');
+    const subjects = themeDescriptions.map(desc => desc.subject);
+    const imageRequest = { subjects, style: body.style };
     const generatedImages = useMock 
       ? createMockImages(imageRequest)
       : await generateImages(imageRequest);
 
-    const themeImages: ThemeImage[] = [];
-    
-    // Upload images to S3 and create theme images
-    for (let i = 0; i < generatedImages.length; i++) {
-      const generated = generatedImages[i];
+    // Upload images to S3 and create theme images concurrently
+    const themeImagePromises = generatedImages.map(async (generated, i) => {
+      const themeDesc = themeDescriptions[i];
       
       if (useMock) {
         // Mock upload for development - using placeholder images
-        themeImages.push({
+        return {
           id: uuidv4(),
           url: `https://picsum.photos/300/300?random=${Date.now()}-${i}`,
           thumbnailUrl: `https://picsum.photos/150/150?random=${Date.now()}-${i}`,
-          altText: `${body.theme} ${i + 1}`,
+          altText: themeDesc.subject,
+          description: themeDesc.description,
           safetyScore: 0.95,
           selected: false
-        });
+        };
       } else {
         const uploadResult = await uploadImageToS3(
           generated.base64Data,
-          body.theme,
+          themeDesc.subject,
           body.style,
           i
         );
         
-        themeImages.push({
+        return {
           id: uploadResult.imageId,
           url: uploadResult.url,
           thumbnailUrl: uploadResult.thumbnailUrl,
-          altText: `${body.theme} ${i + 1}`,
+          altText: themeDesc.subject,
+          description: themeDesc.description,
           safetyScore: 0.95, // TODO: Implement safety scoring
           selected: false
-        });
+        };
       }
-    }
+    });
+
+    const themeImages = await Promise.all(themeImagePromises);
 
     // Save theme to database (skip in mock mode)
     const theme: Theme = {

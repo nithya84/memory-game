@@ -2,28 +2,18 @@
 
 A customizable memory game designed for children on the autism spectrum that uses AI to generate themed images based on their special interests.
 
-## 🎯 Current Status
+## ✅ What Works Now
 
-### ✅ Phase 1: Core Memory Game - Complete
-- Complete game mechanics with 3-20 card pair support
-- Smooth 3D flip animations and responsive design
-- Comprehensive test coverage (28 tests)
-- Accessibility features and mobile support
+- **Memory Game**: Complete - play with 3-20 card pairs
+- **AI Themes**: Generate custom themes with Amazon Bedrock
+- **Deployed**: Frontend and backend running on AWS
+- **Local Dev**: Mock AI for testing without AWS costs
 
-### 🚧 Phase 2A: Backend Infrastructure - Partial
-- ✅ Backend deployed to AWS (Lambda functions working)
-- ✅ API endpoints responding with mock data
-- ✅ Frontend UI for custom theme creation (local only)
-- ❌ Frontend AWS deployment (blocked by permission issues)
-- ❌ DynamoDB functionality (schema defined, not tested)
-- ❌ Real Bedrock AI integration (mock service only)
-- ⚠️ Security review needed
+## 🚧 TODO
 
-### 🔄 Next: Phase 2B
-- Resolve AWS deployment permissions
-- Test DynamoDB operations
-- Switch from mock to real Bedrock AI
-- Security audit and hardening
+- Parent dashboard for tracking progress
+- User accounts and login
+- Game settings and sound controls
 
 ## Project Structure
 
@@ -100,21 +90,11 @@ npm run test:watch
 npm run smoke-test
 ```
 
-### Testing Setup
+### Testing
 
-This project uses a **minimal but effective testing strategy** focused on preventing breaking changes:
-
-- **Frontend**: Vitest + React Testing Library for component tests
-- **Backend**: Jest + AWS SDK mocks for Lambda function tests
-- **Philosophy**: Test critical functionality, not everything
-
-**Key testing practices:**
-- ✅ Always test core game logic and user flows
-- ✅ Test API endpoints and error handling  
-- ✅ Ensure components render without crashing
-- ❌ Don't over-test styling or third-party libraries
-
-See [docs/TESTING.md](./docs/TESTING.md) for detailed testing guide.
+- Frontend: Vitest + React Testing Library
+- Backend: Jest + AWS mocks
+- 28 tests covering core functionality
 
 ## Workspaces
 
@@ -135,40 +115,21 @@ This project uses npm workspaces to manage the monorepo structure:
 
 ## Features
 
-### ✅ Working Features
-- **Memory Game**: Complete gameplay with 3-20 card pairs
-- **Animations**: 3D card flip transitions
-- **Responsive Design**: Works on mobile, tablet, desktop
-- **Accessibility**: Keyboard navigation, screen reader support
-- **Custom Themes**: Frontend UI (local development only)
-- **Backend API**: Deployed to AWS with mock AI service
+### ✅ Working
+- Memory game with animations
+- AI-generated custom themes
+- Mobile/desktop responsive
+- Deployed to AWS
 
-### 🚧 In Development
-- **Real AI Integration**: Bedrock image generation (coded, not tested)
-- **Database**: DynamoDB operations (schema ready, not tested)
-- **Deployment**: Frontend to AWS (blocked by permissions)
-- **Security**: Authentication and data protection audit needed
+### 🚧 TODO
+- Parent dashboard
+- User accounts
+- Game settings
 
 ## Development Status
 
-**Phase 1: Core Game - ✅ Complete**
-- ✅ Memory game with full functionality
-- ✅ 28 comprehensive tests passing
-- ✅ Responsive design and accessibility
-
-**Phase 2A: Backend Infrastructure - 🚧 Partial**
-- ✅ AWS Lambda functions deployed and working
-- ✅ Custom theme creation UI (local frontend)
-- ✅ Mock AI service responding correctly
-- ❌ Frontend AWS deployment (permission issues)
-- ❌ DynamoDB operations (not tested)
-- ❌ Real Bedrock AI (not tested)
-
-**Next Steps:**
-- Fix AWS deployment permissions
-- Test database operations
-- Security review and hardening
-- Switch to production AI service
+**✅ Done**: Core game + AI themes + AWS deployment
+**🚧 Next**: Parent dashboard, user accounts, settings
 
 ## Contributing
 

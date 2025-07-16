@@ -33,7 +33,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "npm run build && serverless offline start",
+    "dev": "npm run build && serverless offline start --stage local",
     "package": "serverless package",
     "deploy": "serverless deploy",
     "test": "jest",

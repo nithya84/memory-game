@@ -24,12 +24,17 @@ npm run build
 echo "3. Deploying backend infrastructure and Lambda functions..."
 npm run deploy -- --stage $STAGE
 
-echo "4. Installing frontend dependencies..."
+echo "4. Cleaning and installing frontend dependencies..."
 cd ../frontend
+npm run clean
 npm install
 
 echo "5. Building frontend..."
-npm run build
+if [ "$STAGE" = "prod" ]; then
+  npm run build
+else
+  npm run build -- --mode $STAGE
+fi
 
 echo "6. Deploying frontend to S3..."
 # Get the S3 bucket name from serverless output
@@ -45,7 +50,7 @@ echo "Frontend uploaded to private S3 bucket: $BUCKET_NAME"
 echo "Frontend will be accessible via CloudFront distribution (check backend deployment output)"
 
 echo "Deployment complete!"
-echo "Backend API: https://$(cd ../backend && serverless info --stage $STAGE | grep ServiceEndpoint | cut -d' ' -f2)"
+echo "Backend API: https://$(cd ../backend && npx serverless info --stage $STAGE | grep ServiceEndpoint | cut -d' ' -f2)"
 echo "Frontend URL: https://$(cd ../backend && aws cloudformation describe-stacks --stack-name memory-game-api-$STAGE --region us-east-1 --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDomainName`].OutputValue' --output text 2>/dev/null || echo 'CloudFront URL not found')"
 echo ""
 echo "Next steps:"
