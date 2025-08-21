@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game - Admin Curation Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .themes-list {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .theme-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .theme-info {
+            flex-grow: 1;
+        }
+
+        .theme-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .theme-details {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-right: 1rem;
+        }
+
+        .status-draft {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+
+        .status-curated {
+            background: #00b894;
+            color: white;
+        }
+
+        .response-area {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+        }
+
+        .error {
+            color: #d63031;
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .success {
+            color: #00b894;
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .config-section {
+            background: #fff9c4;
+            border-color: #f6e05e;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .image-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+            background: white;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .image-item.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .image-item input[type="checkbox"] {
+            width: auto;
+            margin: 0.5rem 0;
+        }
+
+        .image-item label {
+            font-size: 0.8rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .image-item .image-id {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+
+        .curation-controls {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .selection-info {
+            background: #e8f4f8;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Memory Game - Admin Curation Tool</h1>
+
+        <!-- Configuration Section -->
+        <div class="section config-section">
+            <h2>⚙️ Configuration</h2>
+            <div class="form-group">
+                <label for="apiUrl">API Base URL:</label>
+                <input type="url" id="apiUrl" value="https://cr03bj6k02.execute-api.us-east-1.amazonaws.com/dev" placeholder="https://your-api.amazonaws.com/dev">
+            </div>
+            <div class="form-group">
+                <label for="adminToken">Admin Token:</label>
+                <input type="password" id="adminToken" value="" placeholder="Enter your secure admin token" required>
+            </div>
+        </div>
+
+        <!-- Generate Theme Section -->
+        <div class="section">
+            <h2>🎨 Generate New Theme</h2>
+            <div class="form-group">
+                <label for="themeName">Theme Name:</label>
+                <input type="text" id="themeName" placeholder="dinosaurs, vehicles, ocean animals">
+            </div>
+            <div class="form-group">
+                <label for="themeStyle">Style:</label>
+                <select id="themeStyle">
+                    <option value="cartoon">Cartoon</option>
+                    <option value="realistic">Realistic</option>
+                    <option value="simple">Simple</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="imageCount">Number of Images:</label>
+                <input type="number" id="imageCount" value="1" min="1" max="50">
+            </div>
+            <button onclick="generateTheme()">Generate Theme</button>
+            <div id="generateResponse" class="response-area" style="display: none;"></div>
+            <div id="generateLoading" class="loading">Generating theme... This may take 2-3 minutes ⏳</div>
+        </div>
+
+        <!-- List Themes Section -->
+        <div class="section">
+            <h2>📋 All Themes</h2>
+            <button onclick="listThemes()">Refresh Themes List</button>
+            <div id="themesList" class="themes-list"></div>
+            <div id="listLoading" class="loading">Loading themes...</div>
+        </div>
+
+        <!-- Curate Theme Section -->
+        <div class="section">
+            <h2>✨ Curate Theme</h2>
+            <p><strong>Instructions:</strong> After generating a theme, the images will appear below. Select the best 20-35 images by clicking on them.</p>
+            
+            <div class="curation-controls">
+                <div class="form-group">
+                    <label for="curateThemeId">Theme ID to Curate:</label>
+                    <input type="text" id="curateThemeId" placeholder="Auto-populated from generation">
+                </div>
+                <div class="form-group">
+                    <label for="finalThemeName">Final Theme Name:</label>
+                    <input type="text" id="finalThemeName" placeholder="Friendly Dinosaurs">
+                </div>
+                <div class="form-group">
+                    <label for="finalThemeDesc">Theme Description:</label>
+                    <input type="text" id="finalThemeDesc" placeholder="Colorful cartoon dinosaurs for kids">
+                </div>
+                <div class="form-group">
+                    <label for="previewImageId">Preview Image ID:</label>
+                    <input type="text" id="previewImageId" placeholder="Click an image to set as preview">
+                </div>
+                
+                <div class="selection-info" id="selectionInfo" style="display: none;">
+                    <strong>Selection Status:</strong> <span id="selectionCount">0</span> images selected (need 20-35)
+                    <br><strong>Preview:</strong> <span id="previewInfo">None selected</span>
+                </div>
+                
+                <button onclick="curateTheme()" id="curateButton" disabled>Curate Theme (Select 20-35 images first)</button>
+            </div>
+
+            <!-- Image Gallery -->
+            <div id="imageGallery" class="image-gallery" style="display: none;">
+                <!-- Images will be populated here -->
+            </div>
+            
+            <!-- Hidden fields for compatibility -->
+            <textarea id="selectedImages" style="display: none;"></textarea>
+            
+            <div id="curateResponse" class="response-area" style="display: none;"></div>
+            <div id="curateLoading" class="loading">Curating theme...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = () => document.getElementById('apiUrl').value;
+        const ADMIN_TOKEN = () => document.getElementById('adminToken').value;
+
+        function showLoading(elementId) {
+            document.getElementById(elementId).style.display = 'block';
+        }
+
+        function hideLoading(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        function showResponse(elementId, content, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+            element.style.display = 'block';
+            element.className = `response-area ${isError ? 'error' : 'success'}`;
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const url = `${API_BASE()}${endpoint}`;
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${ADMIN_TOKEN()}`
+                }
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(url, options);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${JSON.stringify(data)}`);
+            }
+
+            return data;
+        }
+
+        async function generateTheme() {
+            const theme = document.getElementById('themeName').value;
+            const style = document.getElementById('themeStyle').value;
+            const count = parseInt(document.getElementById('imageCount').value);
+
+            if (!theme) {
+                alert('Please enter a theme name');
+                return;
+            }
+
+            showLoading('generateLoading');
+            document.getElementById('generateResponse').style.display = 'none';
+
+            try {
+                const result = await apiCall('/admin/themes/generate', 'POST', {
+                    theme,
+                    style,
+                    count
+                });
+
+                hideLoading('generateLoading');
+                const responseArea = document.getElementById('generateResponse');
+                
+                // Check if this is an existing theme
+                if (result.message && result.message.includes('existing theme')) {
+                    // Show info message for existing themes
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'success';
+                    infoDiv.style.marginBottom = '1rem';
+                    infoDiv.innerHTML = `<strong>ℹ️ Found Existing Theme:</strong> ${result.message}`;
+                    
+                    responseArea.innerHTML = '';
+                    responseArea.appendChild(infoDiv);
+                    
+                    // Show simplified result for existing themes
+                    const resultDiv = document.createElement('div');
+                    resultDiv.textContent = JSON.stringify({
+                        themeId: result.themeId,
+                        theme: result.theme,
+                        style: result.style,
+                        imageCount: result.imageCount,
+                        status: 'Found existing theme - no generation needed'
+                    }, null, 2);
+                    responseArea.appendChild(resultDiv);
+                } else {
+                    // Show full response for new generations
+                    showResponse('generateResponse', result);
+                }
+                
+                responseArea.style.display = 'block';
+
+                // Auto-populate curate section and show images
+                document.getElementById('curateThemeId').value = result.themeId;
+                document.getElementById('finalThemeName').value = `${theme.charAt(0).toUpperCase() + theme.slice(1)}`;
+                document.getElementById('finalThemeDesc').value = `${style} ${theme} for memory game`;
+                
+                // Show image gallery if images are available
+                if (result.images && result.images.length > 0) {
+                    showImageGallery(result.images);
+                }
+
+            } catch (error) {
+                hideLoading('generateLoading');
+                showResponse('generateResponse', error.message, true);
+            }
+        }
+
+        async function listThemes() {
+            showLoading('listLoading');
+            const listContainer = document.getElementById('themesList');
+            listContainer.innerHTML = '';
+
+            try {
+                const result = await apiCall('/admin/themes');
+                hideLoading('listLoading');
+
+                if (result.themes && result.themes.length > 0) {
+                    result.themes.forEach(theme => {
+                        const themeDiv = document.createElement('div');
+                        themeDiv.className = 'theme-item';
+                        themeDiv.innerHTML = `
+                            <div class="theme-info">
+                                <div class="theme-name">${theme.name || theme.theme || 'Untitled'}</div>
+                                <div class="theme-details">
+                                    ID: ${theme.id} | Images: ${theme.imageCount} | 
+                                    Created: ${new Date(theme.createdAt).toLocaleDateString()}
+                                    ${theme.curatedAt ? ` | Curated: ${new Date(theme.curatedAt).toLocaleDateString()}` : ''}
+                                </div>
+                            </div>
+                            <span class="status-badge status-${theme.status || 'draft'}">${theme.status || 'draft'}</span>
+                        `;
+                        listContainer.appendChild(themeDiv);
+                    });
+                } else {
+                    listContainer.innerHTML = '<p>No themes found. Generate some themes first!</p>';
+                }
+
+            } catch (error) {
+                hideLoading('listLoading');
+                listContainer.innerHTML = `<div class="error">Error loading themes: ${error.message}</div>`;
+            }
+        }
+
+        async function curateTheme() {
+            const themeId = document.getElementById('curateThemeId').value;
+            const name = document.getElementById('finalThemeName').value;
+            const description = document.getElementById('finalThemeDesc').value;
+            const selectedImagesStr = document.getElementById('selectedImages').value;
+            const previewImageId = document.getElementById('previewImageId').value;
+
+            if (!themeId || !name || !description || !selectedImagesStr || !previewImageId) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const selectedImages = selectedImagesStr.split(',').map(id => id.trim()).filter(id => id);
+
+            if (selectedImages.length < 20 || selectedImages.length > 35) {
+                alert('Please select between 20-35 images');
+                return;
+            }
+
+            showLoading('curateLoading');
+            document.getElementById('curateResponse').style.display = 'none';
+
+            try {
+                const result = await apiCall(`/admin/themes/${themeId}/curate`, 'PUT', {
+                    selectedImages,
+                    finalTheme: {
+                        name,
+                        description,
+                        previewImageId
+                    }
+                });
+
+                hideLoading('curateLoading');
+                showResponse('curateResponse', result);
+
+                // Clear form
+                document.getElementById('curateThemeId').value = '';
+                document.getElementById('finalThemeName').value = '';
+                document.getElementById('finalThemeDesc').value = '';
+                document.getElementById('selectedImages').value = '';
+                document.getElementById('previewImageId').value = '';
+
+                // Refresh themes list
+                listThemes();
+
+            } catch (error) {
+                hideLoading('curateLoading');
+                showResponse('curateResponse', error.message, true);
+            }
+        }
+
+        // Image gallery functions
+        let selectedImageIds = new Set();
+        let currentImages = [];
+
+        function showImageGallery(images) {
+            currentImages = images;
+            selectedImageIds.clear();
+            
+            const gallery = document.getElementById('imageGallery');
+            gallery.innerHTML = '';
+            gallery.style.display = 'grid';
+            
+            images.forEach((image, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.innerHTML = `
+                    <img src="${image.thumbnailUrl || image.url}" alt="${image.altText}" loading="lazy">
+                    <input type="checkbox" id="img-${image.id}" onchange="toggleImageSelection('${image.id}')">
+                    <label for="img-${image.id}">${image.altText}</label>
+                    <div class="image-id">${image.id}</div>
+                    <button type="button" onclick="setPreviewImage('${image.id}', '${image.altText}')" style="font-size: 0.7rem; margin-top: 0.5rem;">Set as Preview</button>
+                `;
+                gallery.appendChild(imageItem);
+            });
+            
+            updateSelectionInfo();
+        }
+
+        function toggleImageSelection(imageId) {
+            const checkbox = document.getElementById(`img-${imageId}`);
+            const imageItem = checkbox.closest('.image-item');
+            
+            if (checkbox.checked) {
+                selectedImageIds.add(imageId);
+                imageItem.classList.add('selected');
+            } else {
+                selectedImageIds.delete(imageId);
+                imageItem.classList.remove('selected');
+            }
+            
+            updateSelectionInfo();
+        }
+
+        function setPreviewImage(imageId, altText) {
+            document.getElementById('previewImageId').value = imageId;
+            document.getElementById('previewInfo').textContent = `${altText} (${imageId})`;
+        }
+
+        function updateSelectionInfo() {
+            const count = selectedImageIds.size;
+            const info = document.getElementById('selectionInfo');
+            const button = document.getElementById('curateButton');
+            const countSpan = document.getElementById('selectionCount');
+            
+            countSpan.textContent = count;
+            info.style.display = count > 0 ? 'block' : 'none';
+            
+            // Update hidden textarea for compatibility with existing curate function
+            document.getElementById('selectedImages').value = Array.from(selectedImageIds).join(',');
+            
+            // Enable/disable curate button based on selection
+            if (count >= 20 && count <= 35) {
+                button.disabled = false;
+                button.textContent = `Curate Theme (${count} images selected)`;
+                button.style.background = '#667eea';
+            } else {
+                button.disabled = true;
+                if (count === 0) {
+                    button.textContent = 'Curate Theme (Select 20-35 images first)';
+                } else if (count < 20) {
+                    button.textContent = `Curate Theme (Need ${20 - count} more images)`;
+                } else {
+                    button.textContent = `Curate Theme (Too many: ${count - 35} over limit)`;
+                }
+                button.style.background = '#ccc';
+            }
+        }
+
+        // Load themes on page load
+        window.onload = function() {
+            listThemes();
+        };
+    </script>
+</body>
+</html>
