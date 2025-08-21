@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Card, { CardData } from './Card';
+import { useUserPreferences } from '../contexts/UserPreferences';
+import { DIFFICULTY_LEVELS, getNextDifficulty, getPreviousDifficulty, getDifficultyByPairs } from '../constants/difficultyLevels';
 import './GameBoard.css';
 
 export interface GameState {
@@ -24,6 +26,7 @@ interface GameBoardProps {
   customImages?: CustomImage[];
   onGameComplete?: (stats: { moves: number; time: number }) => void;
   onNewGame?: () => void;
+  onDifficultyChange?: (newDifficulty: number, difficultyLabel: string) => void;
 }
 
 // Animal theme images matching the Figma design
@@ -54,8 +57,14 @@ const GameBoard: React.FC<GameBoardProps> = ({
   difficulty = 6,
   customImages,
   onGameComplete,
-  onNewGame 
+  onNewGame,
+  onDifficultyChange
 }) => {
+  const { preferences, setCardFlipBackDelay } = useUserPreferences();
+  
+  const currentDifficulty = getDifficultyByPairs(difficulty);
+  const nextDifficulty = getNextDifficulty(difficulty);
+  const prevDifficulty = getPreviousDifficulty(difficulty);
   const [gameState, setGameState] = useState<GameState>({
     cards: [],
     flippedCards: [],
@@ -197,7 +206,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             ...prev,
             flippedCards: []
           }));
-        }, 1000);
+        }, preferences.cardFlipBackDelay);
 
         return () => clearTimeout(timer);
       }
@@ -238,6 +247,25 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   return (
     <div className="game-board-container">
+      {/* Game Controls */}
+      <div className="game-accessibility-controls">
+        <div className="timing-control">
+          <label className="timing-label">Card View Time:</label>
+          <select 
+            value={preferences.cardFlipBackDelay}
+            onChange={(e) => setCardFlipBackDelay(Number(e.target.value))}
+            className="timing-select"
+            aria-label="Choose how long cards stay visible when they don't match"
+            title="How long cards stay open when they don't match"
+          >
+            <option value={1000}>Quick (1s)</option>
+            <option value={2000}>Normal (2s)</option>
+            <option value={3000}>Slow (3s)</option>
+            <option value={5000}>Extra Slow (5s)</option>
+          </select>
+        </div>
+      </div>
+
       <div className="game-header">
         <h1>Memory Match</h1>
         <p className="game-subtitle">Find all the matching pairs!</p>
@@ -281,8 +309,39 @@ const GameBoard: React.FC<GameBoardProps> = ({
       )}
 
       <div className="game-controls">
+        {/* Difficulty Navigation */}
+        {onDifficultyChange && (
+          <div className="difficulty-navigation">
+            <button 
+              onClick={() => {
+                if (prevDifficulty) {
+                  onDifficultyChange(prevDifficulty.pairs, prevDifficulty.label);
+                }
+              }}
+              disabled={!prevDifficulty}
+              className="difficulty-nav-btn level-down"
+              title={prevDifficulty ? `Try easier level: ${prevDifficulty.label}` : 'Already at easiest level'}
+            >
+              ⬇️ Level Down{prevDifficulty ? ` (${prevDifficulty.label})` : ''}
+            </button>
+            
+            <button 
+              onClick={() => {
+                if (nextDifficulty) {
+                  onDifficultyChange(nextDifficulty.pairs, nextDifficulty.label);
+                }
+              }}
+              disabled={!nextDifficulty}
+              className="difficulty-nav-btn level-up"
+              title={nextDifficulty ? `Try harder level: ${nextDifficulty.label}` : 'Already at hardest level'}
+            >
+              ⬆️ Level Up{nextDifficulty ? ` (${nextDifficulty.label})` : ''}
+            </button>
+          </div>
+        )}
+        
         <button onClick={onNewGame || initializeGame} className="new-game-btn">
-          New Game
+          🔄 New Game (Same Level)
         </button>
       </div>
     </div>

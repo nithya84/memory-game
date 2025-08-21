@@ -1,21 +1,24 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Home, Game, CreateGame, Settings, ParentDashboard } from './pages';
+import { Game } from './pages';
+import ThemeGallery from './components/ThemeGallery';
+import DifficultySelection from './components/DifficultySelection';
+import { UserPreferencesProvider } from './contexts/UserPreferences';
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/game" element={<Game />} />
-          <Route path="/create-game" element={<CreateGame />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/parent" element={<ParentDashboard />} />
-        </Routes>
-      </div>
-    </Router>
+    <UserPreferencesProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<ThemeGallery />} />
+            <Route path="/theme/:themeId" element={<DifficultySelection />} />
+            <Route path="/game/:themeId/:difficulty" element={<Game />} />
+          </Routes>
+        </div>
+      </Router>
+    </UserPreferencesProvider>
   );
 }
 

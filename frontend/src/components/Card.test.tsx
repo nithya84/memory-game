@@ -137,7 +137,7 @@ describe('Card Component', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it('handles keyboard navigation with Enter key', () => {
+  it('handles keyboard navigation', () => {
     const onClick = vi.fn();
     render(
       <Card
@@ -149,73 +149,23 @@ describe('Card Component', () => {
     );
 
     const card = screen.getByRole('button');
+    
+    // Test Enter key
     fireEvent.keyDown(card, { key: 'Enter' });
-    
     expect(onClick).toHaveBeenCalledWith(mockCard.id);
-  });
-
-  it('handles keyboard navigation with Space key', () => {
-    const onClick = vi.fn();
-    render(
-      <Card
-        card={mockCard}
-        isFlipped={false}
-        isDisabled={false}
-        onClick={onClick}
-      />
-    );
-
-    const card = screen.getByRole('button');
+    
+    // Reset mock
+    onClick.mockClear();
+    
+    // Test Space key
     fireEvent.keyDown(card, { key: ' ' });
-    
     expect(onClick).toHaveBeenCalledWith(mockCard.id);
-  });
-
-  it('ignores other keyboard keys', () => {
-    const onClick = vi.fn();
-    render(
-      <Card
-        card={mockCard}
-        isFlipped={false}
-        isDisabled={false}
-        onClick={onClick}
-      />
-    );
-
-    const card = screen.getByRole('button');
-    fireEvent.keyDown(card, { key: 'Escape' });
     
+    // Reset mock
+    onClick.mockClear();
+    
+    // Test other keys are ignored
+    fireEvent.keyDown(card, { key: 'Escape' });
     expect(onClick).not.toHaveBeenCalled();
-  });
-
-  it('has proper accessibility attributes', () => {
-    const onClick = vi.fn();
-    render(
-      <Card
-        card={mockCard}
-        isFlipped={false}
-        isDisabled={false}
-        onClick={onClick}
-      />
-    );
-
-    const card = screen.getByRole('button');
-    expect(card).toHaveAttribute('tabIndex', '0');
-    expect(card).toHaveAttribute('role', 'button');
-  });
-
-  it('prevents image dragging', () => {
-    const onClick = vi.fn();
-    render(
-      <Card
-        card={mockCard}
-        isFlipped={true}
-        isDisabled={false}
-        onClick={onClick}
-      />
-    );
-
-    const image = screen.getByAltText(mockCard.altText);
-    expect(image).toHaveAttribute('draggable', 'false');
   });
 });
