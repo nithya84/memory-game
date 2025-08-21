@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 const uuidv4 = randomUUID;
 
@@ -54,4 +54,30 @@ export const uploadImageToS3 = async (
     url: `${baseUrl}/${originalKey}`,
     thumbnailUrl: `${baseUrl}/${thumbnailKey}`
   };
+};
+
+// Delete image from S3 (both original and thumbnail)
+export const deleteImageFromS3 = async (imageUrl: string, thumbnailUrl: string): Promise<void> => {
+  try {
+    // Extract keys from URLs
+    const originalKey = imageUrl.split('/').slice(-2).join('/'); // Get "images/filename.webp"
+    const thumbnailKey = thumbnailUrl.split('/').slice(-2).join('/'); // Get "thumbs/filename.webp"
+    
+    // Delete original image
+    await s3Client.send(new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: originalKey
+    }));
+    
+    // Delete thumbnail
+    await s3Client.send(new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: thumbnailKey
+    }));
+    
+    console.log(`Deleted S3 objects: ${originalKey}, ${thumbnailKey}`);
+  } catch (error) {
+    console.error('Error deleting S3 objects:', error);
+    // Don't throw - curate operation should succeed even if cleanup fails
+  }
 };
