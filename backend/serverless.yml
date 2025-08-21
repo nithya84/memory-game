@@ -13,12 +13,9 @@ provider:
     REGION: ${self:provider.region}
     S3_BUCKET: ${self:custom.bucketName}
     CLOUDFRONT_DOMAIN: !GetAtt CloudFrontDistribution.DomainName
-    USERS_TABLE: ${self:service}-users-${self:provider.stage}
     THEMES_TABLE: ${self:service}-themes-${self:provider.stage}
-    GAMES_TABLE: ${self:service}-games-${self:provider.stage}
-    SESSIONS_TABLE: ${self:service}-sessions-${self:provider.stage}
-    JWT_SECRET: ${self:custom.environment.${self:provider.stage}.JWT_SECRET}
     IMAGE_GENERATION_COUNT: ${self:custom.environment.${self:provider.stage}.IMAGE_GENERATION_COUNT}
+    ADMIN_TOKEN: ${self:custom.environment.${self:provider.stage}.ADMIN_TOKEN}
   iam:
     role:
       statements:
@@ -56,16 +53,16 @@ custom:
   environment:
     local:
       USE_MOCK_AI: true
-      JWT_SECRET: development-secret-key-change-in-production
-      IMAGE_GENERATION_COUNT: 20
+      IMAGE_GENERATION_COUNT: 35
+      ADMIN_TOKEN: ${env:ADMIN_TOKEN_LOCAL}
     dev:
       USE_MOCK_AI: false
-      JWT_SECRET: development-secret-key-change-in-production
-      IMAGE_GENERATION_COUNT: 20
+      IMAGE_GENERATION_COUNT: 35
+      ADMIN_TOKEN: ${env:ADMIN_TOKEN_DEV}
     prod:
       USE_MOCK_AI: false
-      JWT_SECRET: ${env:JWT_SECRET_PROD, 'placeholder-will-be-overridden'}
-      IMAGE_GENERATION_COUNT: 20
+      IMAGE_GENERATION_COUNT: 35
+      ADMIN_TOKEN: ${env:ADMIN_TOKEN_PROD}
   serverless-offline:
     httpPort: 3001
     host: 0.0.0.0
@@ -78,45 +75,58 @@ functions:
           path: /health
           method: get
           cors: true
-  
-  register:
-    handler: dist/src/handlers/auth.register
-    events:
-      - http:
-          path: /auth/register
-          method: post
-          cors: true
-  
-  login:
-    handler: dist/src/handlers/auth.login
-    events:
-      - http:
-          path: /auth/login
-          method: post
-          cors: true
-  
+
+  # Admin endpoints for theme curation
   generateTheme:
-    handler: dist/src/handlers/themes.generateTheme
+    handler: dist/src/handlers/admin.generateThemeForCuration
     timeout: 300
     events:
       - http:
-          path: /themes/generate
+          path: /admin/themes/generate
           method: post
           cors:
             origin: '*'
             headers:
               - Content-Type
-              - X-Amz-Date
               - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-  
+
+  curateTheme:
+    handler: dist/src/handlers/admin.curateTheme
+    events:
+      - http:
+          path: /admin/themes/{themeId}/curate
+          method: put
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+
+  listThemes:
+    handler: dist/src/handlers/admin.listThemes
+    events:
+      - http:
+          path: /admin/themes
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Authorization
+
+  # Public endpoints (no auth required)
   getThemes:
-    handler: dist/src/handlers/themes.getThemes
+    handler: dist/src/handlers/themes-public.getThemes
     events:
       - http:
           path: /themes
+          method: get
+          cors: true
+
+  getThemeById:
+    handler: dist/src/handlers/themes-public.getThemeImages
+    events:
+      - http:
+          path: /themes/{themeId}
           method: get
           cors: true
 
@@ -188,6 +198,13 @@ resources:
               OriginAccessControlId: !Ref CloudFrontOriginAccessControl
           Enabled: true
           DefaultRootObject: index.html
+          CustomErrorResponses:
+            - ErrorCode: 403
+              ResponseCode: 200
+              ResponsePagePath: /index.html
+            - ErrorCode: 404
+              ResponseCode: 200
+              ResponsePagePath: /index.html
           DefaultCacheBehavior:
             TargetOriginId: FrontendOrigin
             ViewerProtocolPolicy: redirect-to-https
@@ -249,28 +266,6 @@ resources:
         - FrontendBucket
         - CloudFrontDistribution
 
-    # Users Table
-    UsersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:service}-users-${self:provider.stage}
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: email
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        GlobalSecondaryIndexes:
-          - IndexName: EmailIndex
-            KeySchema:
-              - AttributeName: email
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        BillingMode: PAY_PER_REQUEST
-
     # Themes Table  
     ThemesTable:
       Type: AWS::DynamoDB::Table
@@ -292,53 +287,6 @@ resources:
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
-
-    # Games Table
-    GamesTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:service}-games-${self:provider.stage}
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: userId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        GlobalSecondaryIndexes:
-          - IndexName: UserIdIndex
-            KeySchema:
-              - AttributeName: userId
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        BillingMode: PAY_PER_REQUEST
-
-    # Sessions Table
-    SessionsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:service}-sessions-${self:provider.stage}
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: gameId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        GlobalSecondaryIndexes:
-          - IndexName: GameIdIndex
-            KeySchema:
-              - AttributeName: gameId
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        BillingMode: PAY_PER_REQUEST
-        TimeToLiveSpecification:
-          AttributeName: expiresAt
-          Enabled: true
 
   Outputs:
     CloudFrontDomainName:
