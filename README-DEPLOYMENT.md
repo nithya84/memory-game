@@ -1,25 +1,40 @@
 # Memory Game Deployment Guide
 
+> **📖 For detailed secure launch strategy, see [SECURE_LAUNCH_PLAN.md](./SECURE_LAUNCH_PLAN.md)**
+
+## ⚠️ Security First
+
+This project includes **admin endpoints** that trigger expensive AI generation via Amazon Bedrock.
+**Production deployments should disable admin endpoints** to prevent unauthorized costs.
+
+**Security measures in place:**
+- Rate limiting on all endpoints (50 req/sec global, 1 req/sec for admin)
+- Stage-specific CORS configuration
+- Bearer token authentication for admin endpoints
+- Throttling on expensive operations
+
 ## Prerequisites
 
 1. **AWS CLI** installed and configured:
    ```bash
    # Install AWS CLI (already done)
    aws --version
-   
+
    # Configure AWS credentials
    aws configure
    # Enter your:
    # - AWS Access Key ID
-   # - AWS Secret Access Key  
+   # - AWS Secret Access Key
    # - Default region: us-east-1
    # - Default output format: json
    ```
 
 2. **Environment Variables**:
    ```bash
-   # For production deployment (dev uses hardcoded JWT secret)
+   # For production deployment
    export JWT_SECRET_PROD="your-secure-jwt-secret-here"
+   export ADMIN_TOKEN_DEV="your-dev-admin-token"
+   export ADMIN_TOKEN_PROD="your-prod-admin-token"  # if keeping admin in prod
    ```
 
 3. **AWS Permissions** - Your AWS user needs:

@@ -9,40 +9,36 @@ provider:
   stage: ${opt:stage, 'dev'}
   environment:
     NODE_ENV: ${self:provider.stage}
-    USE_MOCK_AI: ${self:custom.environment.${self:provider.stage}.USE_MOCK_AI}
     REGION: ${self:provider.region}
     S3_BUCKET: ${self:custom.bucketName}
     CLOUDFRONT_DOMAIN: !GetAtt CloudFrontDistribution.DomainName
     THEMES_TABLE: ${self:service}-themes-${self:provider.stage}
-    IMAGE_GENERATION_COUNT: ${self:custom.environment.${self:provider.stage}.IMAGE_GENERATION_COUNT}
-    ADMIN_TOKEN: ${self:custom.environment.${self:provider.stage}.ADMIN_TOKEN}
+
+  # API Gateway rate limiting (prevents abuse and cost overruns)
+  apiGateway:
+    throttle:
+      rateLimit: 50        # Max 50 requests per second
+      burstLimit: 100      # Allow bursts up to 100 concurrent requests
+
   iam:
     role:
       statements:
+        # DynamoDB read-only access (public API only reads themes)
         - Effect: Allow
           Action:
             - dynamodb:Query
             - dynamodb:Scan
             - dynamodb:GetItem
-            - dynamodb:PutItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
           Resource:
             - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-*-${self:provider.stage}"
             - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-*-${self:provider.stage}/index/*"
+
+        # S3 read-only access (public API only serves images)
         - Effect: Allow
           Action:
             - s3:GetObject
-            - s3:PutObject
-            - s3:DeleteObject
           Resource:
             - "arn:aws:s3:::${self:custom.bucketName}/*"
-        - Effect: Allow
-          Action:
-            - bedrock:InvokeModel
-          Resource:
-            - "arn:aws:bedrock:${self:provider.region}::foundation-model/amazon.titan-image-generator-v2:0"
-            - "arn:aws:bedrock:${self:provider.region}::foundation-model/anthropic.claude-3-haiku-20240307-v1:0"
 
 plugins:
   - serverless-offline
@@ -50,19 +46,13 @@ plugins:
 custom:
   bucketName: memory-game-images-${self:provider.stage}
   frontendBucketName: memory-game-frontend-${self:provider.stage}
-  environment:
-    local:
-      USE_MOCK_AI: true
-      IMAGE_GENERATION_COUNT: 35
-      ADMIN_TOKEN: ${env:ADMIN_TOKEN_LOCAL}
-    dev:
-      USE_MOCK_AI: false
-      IMAGE_GENERATION_COUNT: 35
-      ADMIN_TOKEN: ${env:ADMIN_TOKEN_DEV}
-    prod:
-      USE_MOCK_AI: false
-      IMAGE_GENERATION_COUNT: 35
-      ADMIN_TOKEN: ${env:ADMIN_TOKEN_PROD}
+
+  # Stage-specific CORS configuration
+  corsOrigin:
+    local: '*'
+    dev: '*'
+    prod: 'https://your-production-domain.com'  # UPDATE THIS before prod deploy
+
   serverless-offline:
     httpPort: 3001
     host: 0.0.0.0
@@ -76,51 +66,22 @@ functions:
           method: get
           cors: true
 
-  # Admin endpoints for theme curation
-  generateTheme:
-    handler: dist/src/handlers/admin.generateThemeForCuration
-    timeout: 300
-    events:
-      - http:
-          path: /admin/themes/generate
-          method: post
-          cors:
-            origin: '*'
-            headers:
-              - Content-Type
-              - Authorization
-
-  curateTheme:
-    handler: dist/src/handlers/admin.curateTheme
-    events:
-      - http:
-          path: /admin/themes/{themeId}/curate
-          method: put
-          cors:
-            origin: '*'
-            headers:
-              - Content-Type
-              - Authorization
-
-  listThemes:
-    handler: dist/src/handlers/admin.listThemes
-    events:
-      - http:
-          path: /admin/themes
-          method: get
-          cors:
-            origin: '*'
-            headers:
-              - Authorization
-
-  # Public endpoints (no auth required)
+  # ============================================================================
+  # PUBLIC API ENDPOINTS (Read-only, safe for production)
+  # For admin endpoints (theme generation), see serverless-admin.yml
+  # ============================================================================
   getThemes:
     handler: dist/src/handlers/themes-public.getThemes
     events:
       - http:
           path: /themes
           method: get
-          cors: true
+          cors:
+            origin: ${self:custom.corsOrigin.${self:provider.stage}}
+            headers:
+              - Content-Type
+              - X-Requested-With
+            allowCredentials: false
 
   getThemeById:
     handler: dist/src/handlers/themes-public.getThemeImages
@@ -128,7 +89,12 @@ functions:
       - http:
           path: /themes/{themeId}
           method: get
-          cors: true
+          cors:
+            origin: ${self:custom.corsOrigin.${self:provider.stage}}
+            headers:
+              - Content-Type
+              - X-Requested-With
+            allowCredentials: false
 
 package:
   patterns:

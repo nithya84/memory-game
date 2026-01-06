@@ -1,0 +1,149 @@
+service: memory-game-admin
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    USE_MOCK_AI: ${self:custom.environment.${self:provider.stage}.USE_MOCK_AI}
+    REGION: ${self:provider.region}
+    # Reference S3 bucket created by main service
+    S3_BUCKET: memory-game-images-${self:provider.stage}
+    # Reference CloudFront from main service (won't work directly, but handlers can get it)
+    CLOUDFRONT_DOMAIN: memory-game-images-${self:provider.stage}.s3.amazonaws.com
+    # Reference DynamoDB table created by main service
+    THEMES_TABLE: memory-game-api-themes-${self:provider.stage}
+    IMAGE_GENERATION_COUNT: ${self:custom.environment.${self:provider.stage}.IMAGE_GENERATION_COUNT}
+    ADMIN_TOKEN: ${self:custom.environment.${self:provider.stage}.ADMIN_TOKEN}
+
+  # Aggressive rate limiting for expensive operations
+  apiGateway:
+    throttle:
+      rateLimit: 5         # Very low default
+      burstLimit: 10
+
+  iam:
+    role:
+      statements:
+        # DynamoDB access to main service tables
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/memory-game-api-*-${self:provider.stage}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/memory-game-api-*-${self:provider.stage}/index/*"
+
+        # S3 access to main service bucket
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+          Resource:
+            - "arn:aws:s3:::memory-game-images-${self:provider.stage}/*"
+
+        # Bedrock access for AI generation
+        - Effect: Allow
+          Action:
+            - bedrock:InvokeModel
+          Resource:
+            - "arn:aws:bedrock:${self:provider.region}::foundation-model/amazon.titan-image-generator-v2:0"
+            - "arn:aws:bedrock:${self:provider.region}::foundation-model/anthropic.claude-3-haiku-20240307-v1:0"
+
+plugins:
+  - serverless-offline
+
+custom:
+  environment:
+    local:
+      USE_MOCK_AI: true
+      IMAGE_GENERATION_COUNT: 35
+      ADMIN_TOKEN: ${env:ADMIN_TOKEN_LOCAL}
+    dev:
+      USE_MOCK_AI: false
+      IMAGE_GENERATION_COUNT: 35
+      ADMIN_TOKEN: ${env:ADMIN_TOKEN_DEV}
+    prod:
+      USE_MOCK_AI: false
+      IMAGE_GENERATION_COUNT: 35
+      ADMIN_TOKEN: ${env:ADMIN_TOKEN_PROD}
+
+  serverless-offline:
+    httpPort: 3002  # Different port from main service
+    host: 0.0.0.0
+
+functions:
+  # Theme Generation (expensive - calls Bedrock 35+ times)
+  generateTheme:
+    handler: dist/src/handlers/admin.generateThemeForCuration
+    timeout: 300  # 5 minutes for AI generation
+    throttle:
+      rateLimit: 1         # Max 1 request per second
+      burstLimit: 2
+    events:
+      - http:
+          path: /admin/themes/generate
+          method: post
+          cors:
+            origin: '*'  # Admin service can be more permissive
+            headers:
+              - Content-Type
+              - Authorization
+
+  # Theme Curation (moderate cost - deletes rejected images)
+  curateTheme:
+    handler: dist/src/handlers/admin.curateTheme
+    throttle:
+      rateLimit: 2         # Max 2 requests per second
+      burstLimit: 5
+    events:
+      - http:
+          path: /admin/themes/{themeId}/curate
+          method: put
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+
+  # List All Themes (cheap - just DynamoDB scan)
+  listThemes:
+    handler: dist/src/handlers/admin.listThemes
+    throttle:
+      rateLimit: 5         # Max 5 requests per second
+      burstLimit: 10
+    events:
+      - http:
+          path: /admin/themes
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Authorization
+
+package:
+  patterns:
+    - '../node_modules/**'
+    - 'dist/**'
+    - '!../node_modules/aws-sdk/**'
+    - '!../node_modules/@types/**'
+    - '!../node_modules/**/*.d.ts'
+    - '!../node_modules/**/test/**'
+    - '!../node_modules/**/tests/**'
+    - '!../node_modules/**/*.md'
+    - '!../node_modules/**/README*'
+    - '!../node_modules/**/docs/**'
+    - '!../node_modules/**/*.map'
+
+# NOTE: This service does NOT create any infrastructure resources.
+# It references DynamoDB tables and S3 buckets created by the main service (serverless.yml).
+# Deploy the main service first, then deploy this admin service.

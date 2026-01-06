@@ -28,8 +28,12 @@
   "scripts": {
     "build": "tsc",
     "dev": "npm run build && serverless offline start --stage local",
+    "dev:admin": "npm run build && serverless offline start --stage local --config serverless-admin.yml",
     "package": "serverless package",
+    "package:admin": "serverless package --config serverless-admin.yml",
     "deploy": "serverless deploy",
+    "deploy:admin": "serverless deploy --config serverless-admin.yml",
+    "remove:admin": "serverless remove --config serverless-admin.yml",
     "test": "jest",
     "lint": "eslint src --ext .ts",
     "clean": "rm -rf .serverless node_modules dist .webpack"
