@@ -7,7 +7,7 @@
   border-radius: 12px;
   position: relative;
   min-height: 80px;
-  max-height: 200px;
+  max-height: 350px;
 }
 
 .memory-card:hover:not(.disabled):not(.matched) {
