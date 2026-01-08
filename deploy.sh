@@ -83,7 +83,12 @@ else
   echo "⏭️  Skipping admin API deployment (use './deploy.sh $STAGE yes' to deploy admin)"
 fi
 
-NEXT_STEP=$((DEPLOY_ADMIN == "yes" ? 5 : 4))
+if [ "$DEPLOY_ADMIN" = "yes" ]; then
+  NEXT_STEP=5
+else
+  NEXT_STEP=4
+fi
+
 echo "${NEXT_STEP}. Cleaning and installing frontend dependencies..."
 cd ../frontend
 npm run clean
