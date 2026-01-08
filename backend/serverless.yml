@@ -14,11 +14,9 @@ provider:
     CLOUDFRONT_DOMAIN: !GetAtt CloudFrontDistribution.DomainName
     THEMES_TABLE: ${self:service}-themes-${self:provider.stage}
 
-  # API Gateway rate limiting (prevents abuse and cost overruns)
-  apiGateway:
-    throttle:
-      rateLimit: 50        # Max 50 requests per second
-      burstLimit: 100      # Allow bursts up to 100 concurrent requests
+  # NOTE: API Gateway throttling should be configured via AWS Console or CloudFormation
+  # Serverless Framework v3 doesn't support provider.apiGateway.throttle syntax
+  # Default API Gateway limits: 10,000 req/sec per account, 5,000 burst
 
   iam:
     role:

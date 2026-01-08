@@ -20,11 +20,9 @@ provider:
     IMAGE_GENERATION_COUNT: ${self:custom.environment.${self:provider.stage}.IMAGE_GENERATION_COUNT}
     ADMIN_TOKEN: ${self:custom.environment.${self:provider.stage}.ADMIN_TOKEN}
 
-  # Aggressive rate limiting for expensive operations
-  apiGateway:
-    throttle:
-      rateLimit: 5         # Very low default
-      burstLimit: 10
+  # NOTE: API Gateway throttling should be configured via AWS Console or CloudFormation
+  # Serverless Framework v3 doesn't support provider.apiGateway.throttle syntax
+  # For admin API, configure strict throttling manually in AWS Console
 
   iam:
     role:
@@ -86,9 +84,6 @@ functions:
   generateTheme:
     handler: dist/src/handlers/admin.generateThemeForCuration
     timeout: 300  # 5 minutes for AI generation
-    throttle:
-      rateLimit: 1         # Max 1 request per second
-      burstLimit: 2
     events:
       - http:
           path: /admin/themes/generate
@@ -102,9 +97,6 @@ functions:
   # Theme Curation (moderate cost - deletes rejected images)
   curateTheme:
     handler: dist/src/handlers/admin.curateTheme
-    throttle:
-      rateLimit: 2         # Max 2 requests per second
-      burstLimit: 5
     events:
       - http:
           path: /admin/themes/{themeId}/curate
@@ -118,9 +110,6 @@ functions:
   # List All Themes (cheap - just DynamoDB scan)
   listThemes:
     handler: dist/src/handlers/admin.listThemes
-    throttle:
-      rateLimit: 5         # Max 5 requests per second
-      burstLimit: 10
     events:
       - http:
           path: /admin/themes
