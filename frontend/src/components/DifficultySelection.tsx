@@ -60,17 +60,6 @@ const DifficultySelection: React.FC = () => {
 
   return (
     <div className="difficulty-selection">
-      {/* Accessibility Controls */}
-      <div className="accessibility-controls">
-        <button 
-          onClick={toggleReducedMotion}
-          className="accessibility-button"
-          aria-label={preferences.reducedMotion ? 'Enable animations' : 'Disable animations for easier viewing'}
-          title={preferences.reducedMotion ? 'Turn animations back on' : 'Turn off animations'}
-        >
-          {preferences.reducedMotion ? '🐌 Static Mode' : '✨ Animated'}
-        </button>
-      </div>
 
       <div className="difficulty-header">
         <Link to="/" className="back-button">

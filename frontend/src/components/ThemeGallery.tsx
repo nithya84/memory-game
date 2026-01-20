@@ -193,17 +193,6 @@ const ThemeGallery: React.FC = () => {
 
   return (
     <div className="theme-gallery">
-      {/* Accessibility Controls */}
-      <div className="accessibility-controls">
-        <button 
-          onClick={toggleReducedMotion}
-          className="accessibility-button"
-          aria-label={preferences.reducedMotion ? 'Enable animations' : 'Disable animations for easier viewing'}
-          title={preferences.reducedMotion ? 'Turn animations back on' : 'Turn off animations'}
-        >
-          {preferences.reducedMotion ? '🐌 Static Mode' : '✨ Animated'}
-        </button>
-      </div>
 
       <div className="gallery-header">
         <h1>Memory Game</h1>

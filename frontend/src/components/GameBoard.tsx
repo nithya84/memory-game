@@ -77,14 +77,29 @@ const GameBoard: React.FC<GameBoardProps> = ({
     endTime: null
   });
 
+  // Helper function to randomly select N items from array
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   // Initialize game cards
   const initializeGame = useCallback(() => {
-    const imagesToUse = customImages && customImages.length >= difficulty 
-      ? customImages.slice(0, difficulty)
-      : ANIMAL_IMAGES.slice(0, difficulty);
-    
+    // Get available images
+    const availableImages = customImages && customImages.length >= difficulty
+      ? customImages
+      : ANIMAL_IMAGES;
+
+    // Randomly select N images from available pool
+    const shuffledImages = shuffleArray(availableImages);
+    const imagesToUse = shuffledImages.slice(0, difficulty);
+
     const cardPairs: CardData[] = [];
-    
+
     // Create pairs of cards
     imagesToUse.forEach((image, index) => {
       // First card of the pair

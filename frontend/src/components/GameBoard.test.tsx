@@ -161,7 +161,7 @@ describe('GameBoard Component', () => {
     fireEvent.click(cards[1]);
     
     // Click New Game
-    const newGameButton = screen.getByText('New Game');
+    const newGameButton = screen.getByText('🔄 New Game (Same Level)');
     fireEvent.click(newGameButton);
     
     // Game should reset
