@@ -6,28 +6,21 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: us-east-1
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'local'}
   environment:
     NODE_ENV: ${self:provider.stage}
-    USE_MOCK_AI: ${self:custom.environment.${self:provider.stage}.USE_MOCK_AI}
+    USE_MOCK_AI: ${env:USE_MOCK_AI, 'true'}
     REGION: ${self:provider.region}
-    # Reference S3 bucket created by main service
-    S3_BUCKET: memory-game-images-${self:provider.stage}
-    # Reference CloudFront from main service (won't work directly, but handlers can get it)
-    CLOUDFRONT_DOMAIN: memory-game-images-${self:provider.stage}.s3.amazonaws.com
-    # Reference DynamoDB table created by main service
-    THEMES_TABLE: memory-game-api-themes-${self:provider.stage}
-    IMAGE_GENERATION_COUNT: ${self:custom.environment.${self:provider.stage}.IMAGE_GENERATION_COUNT}
-    ADMIN_TOKEN: ${self:custom.environment.${self:provider.stage}.ADMIN_TOKEN}
-
-  # NOTE: API Gateway throttling should be configured via AWS Console or CloudFormation
-  # Serverless Framework v3 doesn't support provider.apiGateway.throttle syntax
-  # For admin API, configure strict throttling manually in AWS Console
+    S3_BUCKET: ${env:S3_BUCKET_NAME, 'memory-game-images-dev'}
+    CLOUDFRONT_DOMAIN: ${env:CLOUDFRONT_DOMAIN, ''}
+    THEMES_TABLE: ${env:THEMES_TABLE, 'memory-game-api-themes-dev'}
+    IMAGE_GENERATION_COUNT: 35
+    ADMIN_TOKEN: ${env:ADMIN_TOKEN}
 
   iam:
     role:
       statements:
-        # DynamoDB access to main service tables
+        # DynamoDB access
         - Effect: Allow
           Action:
             - dynamodb:Query
@@ -37,17 +30,17 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - "arn:aws:dynamodb:${self:provider.region}:*:table/memory-game-api-*-${self:provider.stage}"
-            - "arn:aws:dynamodb:${self:provider.region}:*:table/memory-game-api-*-${self:provider.stage}/index/*"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/memory-game-*"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/memory-game-*/index/*"
 
-        # S3 access to main service bucket
+        # S3 access
         - Effect: Allow
           Action:
             - s3:GetObject
             - s3:PutObject
             - s3:DeleteObject
           Resource:
-            - "arn:aws:s3:::memory-game-images-${self:provider.stage}/*"
+            - "arn:aws:s3:::${env:S3_BUCKET_NAME, 'memory-game-images-dev'}/*"
 
         # Bedrock access for AI generation
         - Effect: Allow
@@ -61,22 +54,8 @@ plugins:
   - serverless-offline
 
 custom:
-  environment:
-    local:
-      USE_MOCK_AI: true
-      IMAGE_GENERATION_COUNT: 35
-      ADMIN_TOKEN: ${env:ADMIN_TOKEN_LOCAL}
-    dev:
-      USE_MOCK_AI: false
-      IMAGE_GENERATION_COUNT: 35
-      ADMIN_TOKEN: ${env:ADMIN_TOKEN_DEV}
-    prod:
-      USE_MOCK_AI: false
-      IMAGE_GENERATION_COUNT: 35
-      ADMIN_TOKEN: ${env:ADMIN_TOKEN_PROD}
-
   serverless-offline:
-    httpPort: 3002  # Different port from main service
+    httpPort: 3002
     host: 0.0.0.0
 
 functions:

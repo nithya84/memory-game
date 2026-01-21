@@ -18,23 +18,25 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}=== Memory Game Admin Local Environment ===${NC}"
 echo ""
 
-# Load admin tokens from backend/.env.local
-if [ -f "$PROJECT_ROOT/backend/.env.local" ]; then
-    echo -e "${GREEN}Loading admin tokens from backend/.env.local${NC}"
-    export $(grep -E '^ADMIN_TOKEN_' "$PROJECT_ROOT/backend/.env.local" | xargs)
+# Load environment from .env file
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    echo -e "${GREEN}Loading environment from .env${NC}"
+    set -a
+    source "$PROJECT_ROOT/.env"
+    set +a
 else
-    echo -e "${RED}Error: backend/.env.local not found${NC}"
-    echo "Please create backend/.env.local with ADMIN_TOKEN_LOCAL"
+    echo -e "${RED}Error: .env not found${NC}"
+    echo "Please copy .env.example to .env and configure it"
     exit 1
 fi
 
-# Verify ADMIN_TOKEN_LOCAL is set
-if [ -z "$ADMIN_TOKEN_LOCAL" ]; then
-    echo -e "${RED}Error: ADMIN_TOKEN_LOCAL not set in backend/.env.local${NC}"
+# Verify ADMIN_TOKEN is set
+if [ -z "$ADMIN_TOKEN" ]; then
+    echo -e "${RED}Error: ADMIN_TOKEN not set in .env${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}Admin token loaded successfully${NC}"
+echo -e "${GREEN}Environment loaded successfully${NC}"
 echo ""
 
 # Check if node_modules exist
@@ -71,9 +73,8 @@ sleep 5
 
 # Start frontend with admin API URL (port 3002)
 echo -e "${GREEN}Starting frontend on port 5173...${NC}"
-echo -e "${YELLOW}Note: Admin UI will connect to http://localhost:3002/local${NC}"
 cd "$PROJECT_ROOT/frontend"
-VITE_API_BASE_URL=http://localhost:3002/local npm run dev &
+VITE_ADMIN_API_URL=http://localhost:3002/local npm run dev &
 FRONTEND_PID=$!
 
 echo ""
@@ -83,7 +84,7 @@ echo -e "  Frontend:      ${GREEN}http://localhost:5173${NC}"
 echo -e "  Admin UI:      ${GREEN}http://localhost:5173/admin${NC}"
 echo ""
 echo -e "${YELLOW}Admin Token (for UI login):${NC}"
-echo -e "  $ADMIN_TOKEN_LOCAL"
+echo -e "  $ADMIN_TOKEN"
 echo ""
 echo -e "${YELLOW}Press Ctrl+C to stop all services${NC}"
 

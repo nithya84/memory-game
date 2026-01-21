@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Admin.css';
 
-const ADMIN_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const ADMIN_API_URL = import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:3002/local';
 
 interface Theme {
   id: string;
