@@ -184,7 +184,7 @@ const ThemeGallery: React.FC = () => {
       <div className="theme-gallery">
         <div className="gallery-header">
           <h1>Memory Game</h1>
-          <p>Choose your theme</p>
+          <p>Choose your theme, choose the number of pairs you want to play with, and start matching!</p>
         </div>
         <div className="loading">Loading themes...</div>
       </div>
@@ -193,17 +193,6 @@ const ThemeGallery: React.FC = () => {
 
   return (
     <div className="theme-gallery">
-
-      <div className="gallery-header">
-        <h1>Memory Game</h1>
-        <p>Choose your theme and start playing!</p>
-        <div className="how-to-play">
-          <h3>How to Play:</h3>
-          <p>1. Choose a theme that interests you</p>
-          <p>2. Pick your difficulty level</p>
-          <p>3. Find matching pairs by clicking cards</p>
-        </div>
-      </div>
       
       <div className="themes-grid">
         {themes.map((theme) => (
