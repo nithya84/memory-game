@@ -77,6 +77,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     endTime: null
   });
 
+  const [showCongratsModal, setShowCongratsModal] = useState(false);
+
   // Helper function to randomly select N items from array
   const shuffleArray = <T,>(array: T[]): T[] => {
     const shuffled = [...array];
@@ -109,7 +111,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         altText: image.altText,
         isMatched: false
       });
-      
+
       // Second card of the pair
       cardPairs.push({
         id: `card-${index}-b`,
@@ -118,10 +120,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
         isMatched: false
       });
     });
-    
+
     // Shuffle the cards
     const shuffledCards = cardPairs.sort(() => Math.random() - 0.5);
-    
+
     setGameState(prev => ({
       ...prev,
       cards: shuffledCards,
@@ -134,6 +136,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
       startTime: null,
       endTime: null
     }));
+
+    setShowCongratsModal(false);
   }, [difficulty, customImages]);
 
   // Handle card click
@@ -204,15 +208,23 @@ const GameBoard: React.FC<GameBoardProps> = ({
     });
   }, []);
 
-  // Auto-flip back unmatched cards after delay
+  // Manual flip back handler
+  const handleManualFlipBack = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      flippedCards: []
+    }));
+  }, []);
+
+  // Auto-flip back unmatched cards after delay (only if not in manual mode)
   useEffect(() => {
-    if (gameState.flippedCards.length === 2) {
+    if (gameState.flippedCards.length === 2 && preferences.cardFlipBackDelay !== -1) {
       const [firstCardId, secondCardId] = gameState.flippedCards;
       const firstCard = gameState.cards.find(card => card.id === firstCardId);
       const secondCard = gameState.cards.find(card => card.id === secondCardId);
-      
-      const isMatch = firstCard && secondCard && 
-        firstCard.imageUrl === secondCard.imageUrl && 
+
+      const isMatch = firstCard && secondCard &&
+        firstCard.imageUrl === secondCard.imageUrl &&
         firstCard.id !== secondCard.id;
 
       if (!isMatch) {
@@ -226,16 +238,44 @@ const GameBoard: React.FC<GameBoardProps> = ({
         return () => clearTimeout(timer);
       }
     }
-  }, [gameState.flippedCards, gameState.cards]);
+  }, [gameState.flippedCards, gameState.cards, preferences.cardFlipBackDelay]);
+
+  // Keyboard shortcut for manual flip back (Space key)
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === 'Space' && preferences.cardFlipBackDelay === -1 && gameState.flippedCards.length === 2) {
+        event.preventDefault();
+
+        const [firstCardId, secondCardId] = gameState.flippedCards;
+        const firstCard = gameState.cards.find(card => card.id === firstCardId);
+        const secondCard = gameState.cards.find(card => card.id === secondCardId);
+
+        const isMatch = firstCard && secondCard &&
+          firstCard.imageUrl === secondCard.imageUrl &&
+          firstCard.id !== secondCard.id;
+
+        if (!isMatch) {
+          handleManualFlipBack();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [preferences.cardFlipBackDelay, gameState.flippedCards, gameState.cards, handleManualFlipBack]);
 
   // Handle game completion
   useEffect(() => {
-    if (gameState.gameWon && gameState.startTime && gameState.endTime && onGameComplete) {
-      const gameTime = gameState.endTime - gameState.startTime;
-      onGameComplete({
-        moves: gameState.moves,
-        time: gameTime
-      });
+    if (gameState.gameWon && gameState.startTime && gameState.endTime) {
+      setShowCongratsModal(true);
+
+      if (onGameComplete) {
+        const gameTime = gameState.endTime - gameState.startTime;
+        onGameComplete({
+          moves: gameState.moves,
+          time: gameTime
+        });
+      }
     }
   }, [gameState.gameWon, gameState.moves, gameState.startTime, gameState.endTime, onGameComplete]);
 
@@ -259,6 +299,21 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return gameState.flippedCards.includes(cardId) || (card?.isMatched ?? false);
   };
 
+  const shouldShowManualFlipButton = () => {
+    if (preferences.cardFlipBackDelay !== -1 || gameState.flippedCards.length !== 2) {
+      return false;
+    }
+
+    const [firstCardId, secondCardId] = gameState.flippedCards;
+    const firstCard = gameState.cards.find(card => card.id === firstCardId);
+    const secondCard = gameState.cards.find(card => card.id === secondCardId);
+
+    const isMatch = firstCard && secondCard &&
+      firstCard.imageUrl === secondCard.imageUrl &&
+      firstCard.id !== secondCard.id;
+
+    return !isMatch;
+  };
 
   return (
     <div className="game-board-container">
@@ -266,7 +321,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="game-accessibility-controls">
         <div className="timing-control">
           <label className="timing-label">Card View Time:</label>
-          <select 
+          <select
             value={preferences.cardFlipBackDelay}
             onChange={(e) => setCardFlipBackDelay(Number(e.target.value))}
             className="timing-select"
@@ -277,8 +332,20 @@ const GameBoard: React.FC<GameBoardProps> = ({
             <option value={2000}>Normal (2s)</option>
             <option value={3000}>Slow (3s)</option>
             <option value={5000}>Extra Slow (5s)</option>
+            <option value={-1}>Manual</option>
           </select>
         </div>
+
+        {shouldShowManualFlipButton() && (
+          <button
+            onClick={handleManualFlipBack}
+            className="manual-flip-btn"
+            title="Press Space to flip cards back"
+            aria-label="Flip cards back manually (Space key)"
+          >
+            Flip Back (Space)
+          </button>
+        )}
       </div>
 
       <div className="game-header">
@@ -313,13 +380,18 @@ const GameBoard: React.FC<GameBoardProps> = ({
         })}
       </div>
 
-      {gameState.gameWon && (
+      {showCongratsModal && (
         <div className="game-complete">
           <h2>🎉 Congratulations!</h2>
           <p>You completed the game in {gameState.moves} moves!</p>
-          <button onClick={initializeGame} className="play-again-btn">
-            Play Again
-          </button>
+          <div className="game-complete-actions">
+            <button onClick={() => setShowCongratsModal(false)} className="close-modal-btn">
+              Close
+            </button>
+            <button onClick={initializeGame} className="play-again-btn">
+              Play Again
+            </button>
+          </div>
         </div>
       )}
 
