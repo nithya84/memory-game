@@ -67,11 +67,7 @@ functions:
       - http:
           path: /admin/themes/generate
           method: post
-          cors:
-            origin: '*'  # Admin service can be more permissive
-            headers:
-              - Content-Type
-              - Authorization
+          cors: true
 
   # Theme Curation (moderate cost - deletes rejected images)
   curateTheme:
@@ -80,11 +76,43 @@ functions:
       - http:
           path: /admin/themes/{themeId}/curate
           method: put
-          cors:
-            origin: '*'
-            headers:
-              - Content-Type
-              - Authorization
+          cors: true
+
+  # Get Single Theme by ID (includes images for curation)
+  getThemeById:
+    handler: dist/src/handlers/admin.getThemeById
+    events:
+      - http:
+          path: /admin/themes/{themeId}
+          method: get
+          cors: true
+
+  # Consolidate multiple themes into one
+  consolidateThemes:
+    handler: dist/src/handlers/admin.consolidateThemes
+    events:
+      - http:
+          path: /admin/themes/consolidate
+          method: post
+          cors: true
+
+  # Update preview image for a theme
+  updateThemePreview:
+    handler: dist/src/handlers/admin.updateThemePreview
+    events:
+      - http:
+          path: /admin/themes/{themeId}/preview
+          method: put
+          cors: true
+
+  # Delete a theme
+  deleteTheme:
+    handler: dist/src/handlers/admin.deleteTheme
+    events:
+      - http:
+          path: /admin/themes/{themeId}
+          method: delete
+          cors: true
 
   # List All Themes (cheap - just DynamoDB scan)
   listThemes:
@@ -93,10 +121,7 @@ functions:
       - http:
           path: /admin/themes
           method: get
-          cors:
-            origin: '*'
-            headers:
-              - Authorization
+          cors: true
 
 package:
   patterns:

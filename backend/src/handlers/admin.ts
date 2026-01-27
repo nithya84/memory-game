@@ -435,6 +435,331 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
   }
 };
 
+// Get single theme by ID for admin (includes all images)
+export const getThemeById: APIGatewayProxyHandler = async (event) => {
+  try {
+    if (!isAuthorizedAdmin(event)) {
+      return {
+        statusCode: 401,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Admin authentication required' })
+      };
+    }
+
+    const themeId = event.pathParameters?.themeId;
+    if (!themeId) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Theme ID required' })
+      };
+    }
+
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLE_NAMES.THEMES,
+      KeyConditionExpression: 'id = :id',
+      ExpressionAttributeValues: { ':id': themeId }
+    }));
+
+    if (!result.Items || result.Items.length === 0) {
+      return {
+        statusCode: 404,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Theme not found' })
+      };
+    }
+
+    const theme = result.Items[0];
+
+    return {
+      statusCode: 200,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({
+        themeId: theme.id,
+        theme: theme.theme || theme.name,
+        style: theme.style,
+        name: theme.name,
+        status: theme.status,
+        imageCount: theme.images?.length || 0,
+        images: theme.images || [],
+        createdAt: theme.createdAt,
+        curatedAt: theme.curatedAt
+      })
+    };
+
+  } catch (error) {
+    console.error('Get theme by ID error:', error);
+    return {
+      statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: 'Failed to get theme' })
+    };
+  }
+};
+
+// Consolidate multiple themes into one
+export const consolidateThemes: APIGatewayProxyHandler = async (event) => {
+  try {
+    if (!isAuthorizedAdmin(event)) {
+      return {
+        statusCode: 401,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Admin authentication required' })
+      };
+    }
+
+    const body = JSON.parse(event.body || '{}');
+    const { themeIds, targetName, targetDescription } = body;
+
+    if (!themeIds || !Array.isArray(themeIds) || themeIds.length < 2) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'At least 2 theme IDs required' })
+      };
+    }
+
+    // Fetch all themes
+    const themes = [];
+    for (const themeId of themeIds) {
+      const result = await docClient.send(new QueryCommand({
+        TableName: TABLE_NAMES.THEMES,
+        KeyConditionExpression: 'id = :id',
+        ExpressionAttributeValues: { ':id': themeId }
+      }));
+      if (result.Items && result.Items.length > 0) {
+        themes.push(result.Items[0]);
+      }
+    }
+
+    if (themes.length < 2) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Could not find enough themes to consolidate' })
+      };
+    }
+
+    // Merge all images, removing duplicates by ID
+    const allImages: any[] = [];
+    const imageIds = new Set<string>();
+
+    themes.forEach(theme => {
+      if (theme.images && Array.isArray(theme.images)) {
+        theme.images.forEach((img: any) => {
+          if (img.id && !imageIds.has(img.id)) {
+            imageIds.add(img.id);
+            allImages.push(img);
+          }
+        });
+      }
+    });
+
+    // Use the first theme as the base, update it with merged data
+    const primaryTheme = themes[0];
+    const consolidatedTheme = {
+      ...primaryTheme,
+      name: targetName || primaryTheme.name || `Consolidated Theme`,
+      description: targetDescription || primaryTheme.description,
+      images: allImages,
+      status: 'draft', // Reset to draft for re-curation
+      consolidatedFrom: themeIds,
+      consolidatedAt: new Date().toISOString()
+    };
+
+    // Save consolidated theme
+    await docClient.send(new PutCommand({
+      TableName: TABLE_NAMES.THEMES,
+      Item: consolidatedTheme
+    }));
+
+    // Delete other themes (not the primary one)
+    for (let i = 1; i < themes.length; i++) {
+      await docClient.send(new DeleteCommand({
+        TableName: TABLE_NAMES.THEMES,
+        Key: { id: themes[i].id }
+      }));
+    }
+
+    return {
+      statusCode: 200,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({
+        themeId: primaryTheme.id,
+        name: consolidatedTheme.name,
+        imageCount: allImages.length,
+        deletedThemes: themeIds.slice(1),
+        message: `Consolidated ${themes.length} themes into 1 with ${allImages.length} images`
+      })
+    };
+
+  } catch (error) {
+    console.error('Consolidate themes error:', error);
+    return {
+      statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: 'Failed to consolidate themes' })
+    };
+  }
+};
+
+// Update preview image for a curated theme
+export const updateThemePreview: APIGatewayProxyHandler = async (event) => {
+  try {
+    if (!isAuthorizedAdmin(event)) {
+      return {
+        statusCode: 401,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Admin authentication required' })
+      };
+    }
+
+    const themeId = event.pathParameters?.themeId;
+    if (!themeId) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Theme ID required' })
+      };
+    }
+
+    const body = JSON.parse(event.body || '{}');
+    const { previewImageId } = body;
+
+    if (!previewImageId) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Preview image ID required' })
+      };
+    }
+
+    // Fetch theme
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLE_NAMES.THEMES,
+      KeyConditionExpression: 'id = :id',
+      ExpressionAttributeValues: { ':id': themeId }
+    }));
+
+    if (!result.Items || result.Items.length === 0) {
+      return {
+        statusCode: 404,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Theme not found' })
+      };
+    }
+
+    const theme = result.Items[0];
+
+    // Verify the image exists in the theme
+    const imageExists = theme.images?.some((img: any) => img.id === previewImageId);
+    if (!imageExists) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Image not found in theme' })
+      };
+    }
+
+    // Update theme with new preview image
+    await docClient.send(new UpdateCommand({
+      TableName: TABLE_NAMES.THEMES,
+      Key: { id: themeId },
+      UpdateExpression: 'SET previewImageId = :previewImageId',
+      ExpressionAttributeValues: { ':previewImageId': previewImageId }
+    }));
+
+    return {
+      statusCode: 200,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({
+        themeId,
+        previewImageId,
+        message: 'Preview image updated'
+      })
+    };
+
+  } catch (error) {
+    console.error('Update theme preview error:', error);
+    return {
+      statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: 'Failed to update preview image' })
+    };
+  }
+};
+
+// Delete a theme
+export const deleteTheme: APIGatewayProxyHandler = async (event) => {
+  try {
+    if (!isAuthorizedAdmin(event)) {
+      return {
+        statusCode: 401,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Admin authentication required' })
+      };
+    }
+
+    const themeId = event.pathParameters?.themeId;
+    if (!themeId) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Theme ID required' })
+      };
+    }
+
+    // Fetch theme to get images for S3 cleanup
+    const result = await docClient.send(new QueryCommand({
+      TableName: TABLE_NAMES.THEMES,
+      KeyConditionExpression: 'id = :id',
+      ExpressionAttributeValues: { ':id': themeId }
+    }));
+
+    if (!result.Items || result.Items.length === 0) {
+      return {
+        statusCode: 404,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Theme not found' })
+      };
+    }
+
+    const theme = result.Items[0];
+
+    // Delete images from S3
+    if (theme.images && Array.isArray(theme.images)) {
+      console.log(`Deleting ${theme.images.length} images from S3`);
+      for (const img of theme.images) {
+        deleteImageFromS3(img.url, img.thumbnailUrl);
+      }
+    }
+
+    // Delete theme from DynamoDB
+    await docClient.send(new DeleteCommand({
+      TableName: TABLE_NAMES.THEMES,
+      Key: { id: themeId }
+    }));
+
+    return {
+      statusCode: 200,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({
+        message: 'Theme deleted',
+        themeId,
+        imagesDeleted: theme.images?.length || 0
+      })
+    };
+
+  } catch (error) {
+    console.error('Delete theme error:', error);
+    return {
+      statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: 'Failed to delete theme' })
+    };
+  }
+};
+
 // List all themes for admin review
 export const listThemes: APIGatewayProxyHandler = async (event) => {
   try {

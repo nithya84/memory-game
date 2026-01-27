@@ -99,6 +99,58 @@
             background: #f9f9f9;
         }
 
+        .theme-item.clickable {
+            cursor: pointer;
+            border: 2px solid #ffeaa7;
+            background: #fffef0;
+        }
+
+        .theme-item.clickable:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .theme-item.curated {
+            opacity: 0.7;
+        }
+
+        .theme-item.curated.clickable {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .theme-checkbox {
+            width: auto;
+            margin-right: 1rem;
+        }
+
+        .consolidate-bar {
+            display: none;
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .consolidate-bar.visible {
+            display: flex;
+        }
+
+        .consolidate-bar input {
+            width: 200px;
+            margin: 0 0.5rem;
+        }
+
+        .consolidate-bar button {
+            background: white;
+            color: #667eea;
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+        }
+
         .theme-info {
             flex-grow: 1;
         }
@@ -248,7 +300,7 @@
             <h2>⚙️ Configuration</h2>
             <div class="form-group">
                 <label for="apiUrl">API Base URL:</label>
-                <input type="url" id="apiUrl" value="https://cr03bj6k02.execute-api.us-east-1.amazonaws.com/dev" placeholder="https://your-api.amazonaws.com/dev">
+                <input type="url" id="apiUrl" value="https://fky282r6yc.execute-api.us-east-1.amazonaws.com/dev" placeholder="https://your-api.amazonaws.com/dev">
             </div>
             <div class="form-group">
                 <label for="adminToken">Admin Token:</label>
@@ -284,6 +336,16 @@
         <div class="section">
             <h2>📋 All Themes</h2>
             <button onclick="listThemes()">Refresh Themes List</button>
+
+            <div id="consolidateBar" class="consolidate-bar">
+                <span><span id="selectedCount">0</span> themes selected</span>
+                <div>
+                    <input type="text" id="consolidateName" placeholder="Consolidated name">
+                    <button onclick="consolidateSelected()">Consolidate</button>
+                    <button onclick="clearSelection()">Clear</button>
+                </div>
+            </div>
+
             <div id="themesList" class="themes-list"></div>
             <div id="listLoading" class="loading">Loading themes...</div>
         </div>
@@ -452,20 +514,47 @@
                 hideLoading('listLoading');
 
                 if (result.themes && result.themes.length > 0) {
-                    result.themes.forEach(theme => {
+                    // Sort: drafts first, then by date
+                    const sortedThemes = result.themes.sort((a, b) => {
+                        if (a.status === 'curated' && b.status !== 'curated') return 1;
+                        if (a.status !== 'curated' && b.status === 'curated') return -1;
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                    });
+
+                    sortedThemes.forEach(theme => {
+                        const isCurated = theme.status === 'curated';
                         const themeDiv = document.createElement('div');
-                        themeDiv.className = 'theme-item';
+                        themeDiv.className = `theme-item ${isCurated ? 'curated clickable' : 'clickable'}`;
                         themeDiv.innerHTML = `
+                            <input type="checkbox" class="theme-checkbox" onchange="toggleThemeSelection('${theme.id}', this)" onclick="event.stopPropagation()">
                             <div class="theme-info">
                                 <div class="theme-name">${theme.name || theme.theme || 'Untitled'}</div>
                                 <div class="theme-details">
-                                    ID: ${theme.id} | Images: ${theme.imageCount} | 
+                                    ID: ${theme.id} | Images: ${theme.imageCount} |
                                     Created: ${new Date(theme.createdAt).toLocaleDateString()}
                                     ${theme.curatedAt ? ` | Curated: ${new Date(theme.curatedAt).toLocaleDateString()}` : ''}
                                 </div>
                             </div>
+                            <button onclick="deleteTheme('${theme.id}', '${(theme.name || theme.theme || 'Untitled').replace(/'/g, "\\'")}'); event.stopPropagation();" style="background: #e74c3c; padding: 0.4rem 0.8rem; font-size: 0.8rem; width: auto; margin-right: 0.5rem;">Delete</button>
                             <span class="status-badge status-${theme.status || 'draft'}">${theme.status || 'draft'}</span>
+                            ${isCurated ? '<span style="color: #00b894; font-size: 0.8rem;">Click to change preview →</span>' : '<span style="color: #667eea; font-size: 0.8rem;">Click to curate →</span>'}
                         `;
+
+                        const themeName = theme.theme || theme.name || 'unknown';
+                        const themeStyle = theme.style || 'simple';
+
+                        if (isCurated) {
+                            themeDiv.onclick = (e) => {
+                                if (e.target.classList.contains('theme-checkbox')) return;
+                                loadThemeForPreviewChange(theme.id, theme.name);
+                            };
+                        } else {
+                            themeDiv.onclick = (e) => {
+                                if (e.target.classList.contains('theme-checkbox')) return;
+                                loadThemeForCuration(theme.id, themeName, themeStyle, theme.name);
+                            };
+                        }
+
                         listContainer.appendChild(themeDiv);
                     });
                 } else {
@@ -475,6 +564,120 @@
             } catch (error) {
                 hideLoading('listLoading');
                 listContainer.innerHTML = `<div class="error">Error loading themes: ${error.message}</div>`;
+            }
+        }
+
+        async function loadThemeForCuration(themeId, themeName, themeStyle, displayName) {
+            console.log('Loading theme for curation:', { themeId, themeName, themeStyle, displayName });
+            showLoading('curateLoading');
+
+            try {
+                // Fetch theme by ID (direct lookup, works for all themes)
+                const result = await apiCall(`/admin/themes/${themeId}`, 'GET');
+
+                console.log('Theme response:', result);
+                hideLoading('curateLoading');
+
+                // Populate curation form
+                document.getElementById('curateThemeId').value = result.themeId || themeId;
+                const finalName = result.name || displayName || themeName || 'Theme';
+                document.getElementById('finalThemeName').value = finalName.charAt(0).toUpperCase() + finalName.slice(1);
+                document.getElementById('finalThemeDesc').value = `${result.style || themeStyle || 'styled'} ${result.theme || themeName} for memory game`;
+
+                // Show images
+                if (result.images && result.images.length > 0) {
+                    showImageGallery(result.images);
+                    // Scroll to curation section
+                    document.getElementById('imageGallery').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('No images found for this theme.');
+                }
+
+            } catch (error) {
+                hideLoading('curateLoading');
+                console.error('Error loading theme:', error);
+                alert(`Error loading theme: ${error.message}`);
+            }
+        }
+
+        async function loadThemeForPreviewChange(themeId, themeName) {
+            console.log('Loading curated theme for preview change:', { themeId, themeName });
+            showLoading('curateLoading');
+
+            try {
+                const result = await apiCall(`/admin/themes/${themeId}`, 'GET');
+                console.log('Theme response:', result);
+                hideLoading('curateLoading');
+
+                // Show preview change UI
+                const gallery = document.getElementById('imageGallery');
+                gallery.innerHTML = '';
+                gallery.style.display = 'grid';
+
+                // Add header for preview selection
+                const header = document.createElement('div');
+                header.style.cssText = 'grid-column: 1 / -1; background: #e8f4f8; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;';
+                header.innerHTML = `
+                    <h3 style="margin: 0 0 0.5rem 0; color: #667eea;">📷 Change Preview Image for "${themeName}"</h3>
+                    <p style="margin: 0; color: #666;">Click "Set as Preview" on any image below to update the theme's preview.</p>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #999;">Theme ID: ${themeId}</p>
+                `;
+                gallery.appendChild(header);
+
+                // Store current theme ID for preview update
+                currentPreviewThemeId = themeId;
+
+                // Display images with preview buttons
+                result.images.forEach((image) => {
+                    const isCurrentPreview = image.id === result.previewImageId;
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'image-item' + (isCurrentPreview ? ' selected' : '');
+                    imageItem.innerHTML = `
+                        <img src="${image.thumbnailUrl || image.url}" alt="${image.altText}" loading="lazy">
+                        <label style="font-weight: ${isCurrentPreview ? 'bold' : 'normal'}; color: ${isCurrentPreview ? '#667eea' : '#666'};">${image.altText}</label>
+                        <div class="image-id">${image.id}</div>
+                        ${isCurrentPreview
+                            ? '<span style="background: #667eea; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem;">Current Preview</span>'
+                            : `<button type="button" onclick="updatePreviewImage('${themeId}', '${image.id}')" style="font-size: 0.7rem; margin-top: 0.5rem;">Set as Preview</button>`
+                        }
+                    `;
+                    gallery.appendChild(imageItem);
+                });
+
+                // Scroll to gallery
+                gallery.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                hideLoading('curateLoading');
+                console.error('Error loading theme:', error);
+                alert(`Error loading theme: ${error.message}`);
+            }
+        }
+
+        let currentPreviewThemeId = null;
+
+        async function updatePreviewImage(themeId, imageId) {
+            if (!confirm('Set this image as the new preview?')) {
+                return;
+            }
+
+            showLoading('curateLoading');
+
+            try {
+                const result = await apiCall(`/admin/themes/${themeId}/preview`, 'PUT', {
+                    previewImageId: imageId
+                });
+
+                hideLoading('curateLoading');
+                alert('Preview image updated successfully!');
+
+                // Reload the preview change view
+                const themeName = document.querySelector('#imageGallery h3')?.textContent.match(/"([^"]+)"/)?.[1] || 'Theme';
+                loadThemeForPreviewChange(themeId, themeName);
+
+            } catch (error) {
+                hideLoading('curateLoading');
+                alert(`Error updating preview: ${error.message}`);
             }
         }
 
@@ -526,6 +729,90 @@
             } catch (error) {
                 hideLoading('curateLoading');
                 showResponse('curateResponse', error.message, true);
+            }
+        }
+
+        // Theme selection for consolidation
+        let selectedThemeIds = new Set();
+
+        function toggleThemeSelection(themeId, checkbox) {
+            if (checkbox.checked) {
+                selectedThemeIds.add(themeId);
+            } else {
+                selectedThemeIds.delete(themeId);
+            }
+            updateConsolidateBar();
+        }
+
+        function updateConsolidateBar() {
+            const bar = document.getElementById('consolidateBar');
+            const countSpan = document.getElementById('selectedCount');
+            countSpan.textContent = selectedThemeIds.size;
+
+            if (selectedThemeIds.size >= 2) {
+                bar.classList.add('visible');
+            } else {
+                bar.classList.remove('visible');
+            }
+        }
+
+        async function consolidateSelected() {
+            if (selectedThemeIds.size < 2) {
+                alert('Select at least 2 themes to consolidate');
+                return;
+            }
+
+            const targetName = document.getElementById('consolidateName').value;
+            if (!targetName) {
+                alert('Enter a name for the consolidated theme');
+                return;
+            }
+
+            if (!confirm(`Consolidate ${selectedThemeIds.size} themes into "${targetName}"? This will merge all images and delete the other themes.`)) {
+                return;
+            }
+
+            showLoading('listLoading');
+
+            try {
+                const result = await apiCall('/admin/themes/consolidate', 'POST', {
+                    themeIds: Array.from(selectedThemeIds),
+                    targetName
+                });
+
+                hideLoading('listLoading');
+                alert(`Success! ${result.message}`);
+                clearSelection();
+                listThemes();
+
+            } catch (error) {
+                hideLoading('listLoading');
+                alert(`Error consolidating themes: ${error.message}`);
+            }
+        }
+
+        function clearSelection() {
+            selectedThemeIds.clear();
+            document.querySelectorAll('.theme-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('consolidateName').value = '';
+            updateConsolidateBar();
+        }
+
+        async function deleteTheme(themeId, themeName) {
+            if (!confirm(`Delete theme "${themeName}"?\n\nThis will permanently delete the theme and all its images from S3. This cannot be undone.`)) {
+                return;
+            }
+
+            showLoading('listLoading');
+
+            try {
+                const result = await apiCall(`/admin/themes/${themeId}`, 'DELETE');
+                hideLoading('listLoading');
+                alert(`Deleted "${themeName}" (${result.imagesDeleted} images removed)`);
+                listThemes();
+            } catch (error) {
+                hideLoading('listLoading');
+                alert(`Error deleting theme: ${error.message}`);
             }
         }
 
@@ -607,9 +894,13 @@
             }
         }
 
-        // Load themes on page load
+        // Don't auto-load themes - wait for user to enter token and click Refresh
         window.onload = function() {
-            listThemes();
+            // Only load if token is already saved (e.g., from localStorage)
+            const savedToken = document.getElementById('adminToken').value;
+            if (savedToken && savedToken.length > 10) {
+                listThemes();
+            }
         };
     </script>
 </body>
