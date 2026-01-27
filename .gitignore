@@ -13,13 +13,14 @@ build/
 
 # Environment files
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-frontend/.env.development
-frontend/.env.production
-frontend/.env.staging
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
 
 # IDE files
 .vscode/
