@@ -14,8 +14,8 @@ export const getThemes: APIGatewayProxyHandler = async (event) => {
       },
       ExpressionAttributeValues: {
         ':status': 'curated'
-      },
-      Limit: 20
+      }
+      // Note: No Limit - scan all items to ensure all curated themes are found
     }));
 
     const themes = (result.Items || []).map(item => {
