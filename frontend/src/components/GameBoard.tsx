@@ -172,20 +172,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
           firstCard.id !== secondCard.id;
 
         if (isMatch) {
-          // Mark cards as matched
-          const updatedCards = prev.cards.map(card => 
-            card.id === firstCardId || card.id === secondCardId 
-              ? { ...card, isMatched: true }
-              : card
-          );
-
           const newMatchedPairs = prev.matchedPairs + 1;
           const gameWon = newMatchedPairs === prev.totalPairs;
-          
+
+          // Mark matched cards, and if game is won, mark ALL cards as matched to keep them visible
+          const updatedCards = prev.cards.map(card => {
+            if (gameWon) {
+              // When game is won, mark all cards as matched so they stay flipped
+              return { ...card, isMatched: true };
+            } else if (card.id === firstCardId || card.id === secondCardId) {
+              return { ...card, isMatched: true };
+            }
+            return card;
+          });
+
           return {
             ...prev,
             cards: updatedCards,
-            flippedCards: [],
+            flippedCards: gameWon ? prev.cards.map(c => c.id) : [],
             matchedPairs: newMatchedPairs,
             moves: prev.moves + 1,
             gameWon,
