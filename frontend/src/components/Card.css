@@ -117,7 +117,7 @@
   opacity: 0.6;
 }
 
-.memory-card.disabled .card-inner {
+.memory-card.disabled:not(.flipped):not(.matched) .card-inner {
   transform: none !important;
 }
 

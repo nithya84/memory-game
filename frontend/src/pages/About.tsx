@@ -31,7 +31,7 @@ const About: React.FC = () => {
             adjust the card timing if you need more processing time. That's it.
           </p>
           <p className="highlight">
-            No ads. No tracking. No data collection. Free (till I hit my monthly hobby budget on AWS).
+            No ads. No tracking. No data collection. Free to use.
           </p>
         </section>
 
