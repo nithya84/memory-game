@@ -129,18 +129,14 @@ const Game: React.FC = () => {
         <button onClick={handleBackToThemes} className="back-button">
           ← Back to Themes
         </button>
-        <div className="game-info">
-          <span className="theme-name">{theme.name}</span>
-          <span className="difficulty-badge">{difficultyConfig.label}</span>
-          <span className="pairs-count">{difficulty} pairs</span>
-        </div>
       </nav>
-      
+
       <main className="game-main">
         <GameBoard
           key={gameKey}
           difficulty={difficulty}
           customImages={themeImages}
+          themeName={theme.name}
           onGameComplete={handleGameComplete}
           onNewGame={handleNewGame}
           onDifficultyChange={handleDifficultyChange}

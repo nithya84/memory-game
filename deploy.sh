@@ -107,12 +107,7 @@ npm install
 NEXT_STEP=$((NEXT_STEP + 1))
 echo "${NEXT_STEP}. Building frontend with backend API URL..."
 echo "   API URL: $PUBLIC_API_URL"
-export VITE_API_BASE_URL="$PUBLIC_API_URL"
-if [ "$STAGE" = "prod" ]; then
-  npm run build
-else
-  npm run build -- --mode $STAGE
-fi
+VITE_API_BASE_URL="$PUBLIC_API_URL" npm run build
 
 NEXT_STEP=$((NEXT_STEP + 1))
 echo "${NEXT_STEP}. Deploying frontend to S3..."

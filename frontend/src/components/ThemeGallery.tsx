@@ -196,7 +196,6 @@ const ThemeGallery: React.FC = () => {
       <div className="gallery-header">
         <h1>Memory Game</h1>
         <p>Choose your theme, choose the number of pairs you want to play with, and start matching!</p>
-        <Link to="/about" className="about-link">About this game</Link>
       </div>
 
       <div className="themes-grid">

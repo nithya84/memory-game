@@ -24,6 +24,7 @@ interface CustomImage {
 interface GameBoardProps {
   difficulty?: number; // Number of pairs (3-20)
   customImages?: CustomImage[];
+  themeName?: string;
   onGameComplete?: (stats: { moves: number; time: number }) => void;
   onNewGame?: () => void;
   onDifficultyChange?: (newDifficulty: number, difficultyLabel: string) => void;
@@ -53,9 +54,10 @@ const ANIMAL_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&h=300&fit=crop', alt: 'Bird' }
 ];
 
-const GameBoard: React.FC<GameBoardProps> = ({ 
+const GameBoard: React.FC<GameBoardProps> = ({
   difficulty = 6,
   customImages,
+  themeName,
   onGameComplete,
   onNewGame,
   onDifficultyChange
@@ -323,7 +325,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   return (
     <div className="game-board-container">
       <div className="game-header">
-        <h1>Memory Match</h1>
+        <h1>Memory Match{themeName ? `: ${themeName}` : ''}</h1>
         <p className="game-subtitle">Find all the matching pairs!</p>
         <div className="game-stats">
           <span>{gameState.matchedPairs}/{gameState.totalPairs} Matched</span>
