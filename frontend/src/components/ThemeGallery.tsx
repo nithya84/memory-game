@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useUserPreferences } from '../contexts/UserPreferences';
 import './ThemeGallery.css';
@@ -193,7 +193,12 @@ const ThemeGallery: React.FC = () => {
 
   return (
     <div className="theme-gallery">
-      
+      <div className="gallery-header">
+        <h1>Memory Game</h1>
+        <p>Choose your theme, choose the number of pairs you want to play with, and start matching!</p>
+        <Link to="/about" className="about-link">About this game</Link>
+      </div>
+
       <div className="themes-grid">
         {themes.map((theme) => (
           <div 

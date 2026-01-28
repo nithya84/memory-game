@@ -296,7 +296,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   const isCardFlipped = (cardId: string) => {
     const card = gameState.cards.find(c => c.id === cardId);
-    return gameState.flippedCards.includes(cardId) || (card?.isMatched ?? false);
+    // Keep all cards flipped when game is won, or if card is matched, or currently flipped
+    return gameState.gameWon || gameState.flippedCards.includes(cardId) || (card?.isMatched ?? false);
   };
 
   const shouldShowManualFlipButton = () => {
@@ -317,8 +318,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   return (
     <div className="game-board-container">
-      {/* Game Controls */}
-      <div className="game-accessibility-controls">
+      <div className="game-header">
+        <h1>Memory Match</h1>
+        <p className="game-subtitle">Find all the matching pairs!</p>
+        <div className="game-stats">
+          <span>{gameState.matchedPairs}/{gameState.totalPairs} Matched</span>
+        </div>
+      </div>
+
+      {/* Game Controls - moved above board */}
+      <div className="game-controls-top">
         <div className="timing-control">
           <label className="timing-label">Card View Time:</label>
           <select
@@ -332,28 +341,20 @@ const GameBoard: React.FC<GameBoardProps> = ({
             <option value={2000}>Normal (2s)</option>
             <option value={3000}>Slow (3s)</option>
             <option value={5000}>Extra Slow (5s)</option>
-            <option value={-1}>Manual</option>
+            <option value={-1}>Manual (use Spacebar)</option>
           </select>
         </div>
 
-        {shouldShowManualFlipButton() && (
+        {preferences.cardFlipBackDelay === -1 && (
           <button
             onClick={handleManualFlipBack}
             className="manual-flip-btn"
-            title="Press Space to flip cards back"
-            aria-label="Flip cards back manually (Space key)"
+            disabled={!shouldShowManualFlipButton()}
+            aria-label="Flip cards back manually"
           >
-            Flip Back (Space)
+            Flip Back
           </button>
         )}
-      </div>
-
-      <div className="game-header">
-        <h1>Memory Match</h1>
-        <p className="game-subtitle">Find all the matching pairs!</p>
-        <div className="game-stats">
-          <span>{gameState.matchedPairs}/{gameState.totalPairs} Matched</span>
-        </div>
       </div>
 
       <div 

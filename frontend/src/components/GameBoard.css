@@ -10,14 +10,18 @@
   position: relative;
 }
 
-/* Game Accessibility Controls */
-.game-accessibility-controls {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 50;
+/* Game Controls - Above Board */
+.game-controls-top {
   display: flex;
   gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0.75rem auto;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--shadow-light);
+  max-width: fit-content;
 }
 
 .timing-control {
@@ -68,18 +72,24 @@
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px var(--shadow-light);
   white-space: nowrap;
-  min-width: 120px;
+  min-width: 100px;
 }
 
-.manual-flip-btn:hover {
+.manual-flip-btn:hover:not(:disabled) {
   background: #6b8c78;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px var(--shadow-medium);
 }
 
-.manual-flip-btn:active {
+.manual-flip-btn:active:not(:disabled) {
   transform: translateY(0);
   box-shadow: 0 2px 6px var(--shadow-light);
+}
+
+.manual-flip-btn:disabled {
+  background: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .manual-flip-btn:focus {
@@ -426,10 +436,10 @@
     padding: 0.25rem 0.5rem;
   }
 
-  .game-accessibility-controls {
-    position: static;
-    margin-bottom: 0.5rem;
-    justify-content: center;
+  .game-controls-top {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
   }
 
   .timing-control {
@@ -448,7 +458,7 @@
   .manual-flip-btn {
     font-size: 0.75rem;
     padding: 0.4rem 0.75rem;
-    min-width: 100px;
+    min-width: 90px;
   }
 
   .game-header {

@@ -83,6 +83,20 @@
   margin: 0;
 }
 
+.about-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--accent-color);
+  text-decoration: none;
+  font-size: 1rem;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.about-link:hover {
+  border-bottom-color: var(--accent-color);
+}
+
 .loading {
   text-align: center;
   color: var(--text-primary);

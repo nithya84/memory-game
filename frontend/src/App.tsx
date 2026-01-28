@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Game } from './pages';
+import About from './pages/About';
 import ThemeGallery from './components/ThemeGallery';
 import DifficultySelection from './components/DifficultySelection';
 import { UserPreferencesProvider } from './contexts/UserPreferences';
@@ -13,6 +14,7 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<ThemeGallery />} />
+            <Route path="/about" element={<About />} />
             <Route path="/theme/:themeId" element={<DifficultySelection />} />
             <Route path="/game/:themeId/:difficulty" element={<Game />} />
           </Routes>
