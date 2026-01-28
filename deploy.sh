@@ -89,13 +89,25 @@ else
   NEXT_STEP=4
 fi
 
+echo "${NEXT_STEP}. Getting backend API URL..."
+cd ../backend
+PUBLIC_API_URL=$(npx serverless info --stage $STAGE 2>/dev/null | grep "GET" | head -1 | awk '{print $NF}' | sed 's|/health||' | sed 's|/themes.*||')
+if [ -z "$PUBLIC_API_URL" ]; then
+  echo "❌ ERROR: Could not get backend API URL. Deploy backend first."
+  exit 1
+fi
+echo "   Backend API: $PUBLIC_API_URL"
+
+NEXT_STEP=$((NEXT_STEP + 1))
 echo "${NEXT_STEP}. Cleaning and installing frontend dependencies..."
 cd ../frontend
 npm run clean
 npm install
 
 NEXT_STEP=$((NEXT_STEP + 1))
-echo "${NEXT_STEP}. Building frontend..."
+echo "${NEXT_STEP}. Building frontend with backend API URL..."
+echo "   API URL: $PUBLIC_API_URL"
+export VITE_API_BASE_URL="$PUBLIC_API_URL"
 if [ "$STAGE" = "prod" ]; then
   npm run build
 else
