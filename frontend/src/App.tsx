@@ -11,7 +11,7 @@ import './App.css';
 function App() {
   return (
     <UserPreferencesProvider>
-      <Router>
+      <Router basename="/memory-game">
         <div className="App">
           <Navigation />
           <Routes>
