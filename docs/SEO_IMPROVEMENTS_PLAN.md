@@ -17,28 +17,28 @@
 
 ```html
 <!-- Primary Meta Tags -->
-<meta name="description" content="Educational learning games for kids. Play interactive memory games and more to develop cognitive skills through fun, engaging activities.">
-<meta name="keywords" content="educational games, kids learning, memory game, children activities, interactive learning">
+<meta name="description" content="Tools designed for neurodivergent children and their families. Customizable learning experiences that adapt to your child's needs, making life simpler through thoughtful AI-powered solutions.">
+<meta name="keywords" content="neurodivergent children, autism tools, special needs learning, adaptive learning, special interests, accessible education, neurodivergent learning, autism spectrum, special education tools">
 <meta name="author" content="enable.kids">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://enable.kids/">
-<meta property="og:title" content="enable.kids - Learning Through Play">
-<meta property="og:description" content="Educational learning games for kids. Play interactive memory games and more to develop cognitive skills through fun, engaging activities.">
+<meta property="og:title" content="enable.kids - Tools for neurodivergent children">
+<meta property="og:description" content="Tools designed for neurodivergent children and their families. Customizable learning experiences that adapt to your child's needs.">
 <meta property="og:image" content="https://enable.kids/og-image.jpg">
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:url" content="https://enable.kids/">
-<meta property="twitter:title" content="enable.kids - Learning Through Play">
-<meta property="twitter:description" content="Educational learning games for kids. Play interactive memory games and more to develop cognitive skills through fun, engaging activities.">
+<meta property="twitter:title" content="enable.kids - Tools for neurodivergent children">
+<meta property="twitter:description" content="Tools designed for neurodivergent children and their families. Customizable learning experiences that adapt to your child's needs.">
 <meta property="twitter:image" content="https://enable.kids/og-image.jpg">
 ```
 
 **Also update:** Change `<title>` from generic to:
 ```html
-<title>enable.kids - Educational Learning Games for Kids</title>
+<title>enable.kids - Tools for neurodivergent children and their families</title>
 ```
 
 ---
@@ -169,7 +169,7 @@ Add before closing `</head>`:
   "@type": "Organization",
   "name": "enable.kids",
   "url": "https://enable.kids",
-  "description": "Educational learning games for kids",
+  "description": "Tools for neurodivergent children and their families",
   "sameAs": []
 }
 </script>
@@ -180,7 +180,7 @@ Add before closing `</head>`:
   "@type": "WebSite",
   "name": "enable.kids",
   "url": "https://enable.kids",
-  "description": "Educational learning games for kids"
+  "description": "Tools designed for neurodivergent children and their families"
 }
 </script>
 ```
@@ -195,8 +195,8 @@ Add before closing `</head>`:
 
 Add game-specific meta tags:
 ```html
-<title>Memory Game - enable.kids</title>
-<meta name="description" content="Play our themed memory matching game. Choose from various themes and difficulty levels to challenge your memory and concentration skills.">
+<title>Memory Game for Special Interests - enable.kids</title>
+<meta name="description" content="A customizable matching game designed for children on the autism spectrum. Choose from 20+ themes based on special interests (trains, dinosaurs, space) and adjust difficulty to match your child's needs.">
 <link rel="canonical" href="https://enable.kids/memory-game/" />
 ```
 
@@ -219,8 +219,8 @@ Add game-specific meta tags:
 
 Create a 1200x630px image with:
 - enable.kids logo/branding
-- Tagline: "Learning Through Play"
-- Colorful, kid-friendly design
+- Tagline: "Tools for neurodivergent children and their families"
+- Colorful, accessible, calm design reflecting neurodivergent-friendly aesthetics
 
 Tools:
 - Canva (free)
@@ -281,11 +281,11 @@ Tools:
 
 ## Long-term SEO Strategy
 
-1. **Content:** Add blog posts about educational games, parenting tips
-2. **Backlinks:** Reach out to parenting blogs, educational sites
-3. **Social Media:** Share on Twitter, Facebook parenting groups
-4. **Community:** Engage in educational forums, Reddit (r/parenting)
-5. **Quality:** Focus on making great games = natural backlinks
+1. **Content:** Add blog posts about neurodivergent parenting, special interests, adaptive learning strategies
+2. **Backlinks:** Reach out to autism/neurodivergent parenting blogs, special education sites, therapy communities
+3. **Social Media:** Share on autism parent groups, neurodivergent communities, special education networks
+4. **Community:** Engage in neurodivergent forums, Reddit (r/autism, r/Aspergers, r/specialed)
+5. **Quality:** Focus on making tools that genuinely help neurodivergent families = natural backlinks and word-of-mouth
 
 ---
 
