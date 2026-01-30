@@ -38,7 +38,7 @@ const About: React.FC = () => {
         <section className="about-section who-made-section">
           <div className="profile-container">
             <img
-              src="/assets/nithya-profile.jpg"
+              src={`${import.meta.env.BASE_URL}assets/nithya-profile.jpg`}
               alt="Nithya"
               className="profile-photo"
             />
