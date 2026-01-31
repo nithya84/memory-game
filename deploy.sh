@@ -112,8 +112,8 @@ VITE_API_BASE_URL="$PUBLIC_API_URL" npm run build
 NEXT_STEP=$((NEXT_STEP + 1))
 echo "${NEXT_STEP}. Deploying frontend to S3..."
 BUCKET_NAME="memory-game-frontend-$STAGE"
-echo "   Uploading to s3://$BUCKET_NAME"
-aws s3 sync dist/ s3://$BUCKET_NAME --delete --region us-east-1
+echo "   Uploading to s3://$BUCKET_NAME/memory-game/"
+aws s3 sync dist/ s3://$BUCKET_NAME/memory-game/ --delete --region us-east-1
 
 echo ""
 echo "================================"

@@ -91,6 +91,53 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return shuffled;
   };
 
+  // Shuffle with anti-adjacent algorithm to minimize pairs next to each other
+  const shuffleWithAntiAdjacent = (cards: CardData[], numPairs: number): CardData[] => {
+    const getGridSize = () => {
+      const totalCards = numPairs * 2;
+      // Match the column logic from getGridColumns()
+      if (totalCards <= 12) return { cols: 3, rows: Math.ceil(totalCards / 3) };
+      if (totalCards <= 16) return { cols: 4, rows: 4 };
+      if (totalCards <= 24) return { cols: 6, rows: 4 };
+      if (totalCards <= 32) return { cols: 8, rows: 4 };
+      return { cols: 10, rows: 4 };
+    };
+
+    const countAdjacentPairs = (shuffled: CardData[], cols: number): number => {
+      let count = 0;
+      for (let i = 0; i < shuffled.length; i++) {
+        // Check horizontal neighbor
+        if (i % cols !== cols - 1) {
+          const right = i + 1;
+          if (shuffled[i].imageUrl === shuffled[right]?.imageUrl) count++;
+        }
+        // Check vertical neighbor
+        const below = i + cols;
+        if (below < shuffled.length && shuffled[i].imageUrl === shuffled[below]?.imageUrl) {
+          count++;
+        }
+      }
+      return count;
+    };
+
+    // Try up to 10 shuffles to find one with minimal adjacent pairs (max 4 allowed)
+    let bestShuffle = [...cards].sort(() => Math.random() - 0.5);
+    const grid = getGridSize();
+    let minAdjacent = countAdjacentPairs(bestShuffle, grid.cols);
+
+    for (let attempt = 0; attempt < 10 && minAdjacent > 4; attempt++) {
+      const candidate = [...cards].sort(() => Math.random() - 0.5);
+      const adjacentCount = countAdjacentPairs(candidate, grid.cols);
+
+      if (adjacentCount < minAdjacent) {
+        bestShuffle = candidate;
+        minAdjacent = adjacentCount;
+      }
+    }
+
+    return bestShuffle;
+  };
+
   // Initialize game cards
   const initializeGame = useCallback(() => {
     // Get available images
@@ -123,8 +170,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
       });
     });
 
-    // Shuffle the cards
-    const shuffledCards = cardPairs.sort(() => Math.random() - 0.5);
+    // Shuffle the cards with anti-adjacent algorithm
+    const shuffledCards = shuffleWithAntiAdjacent(cardPairs, difficulty);
 
     setGameState(prev => ({
       ...prev,
