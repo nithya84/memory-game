@@ -120,13 +120,14 @@ const GameBoard: React.FC<GameBoardProps> = ({
       return count;
     };
 
-    // Try up to 10 shuffles to find one with minimal adjacent pairs (max 4 allowed)
-    let bestShuffle = [...cards].sort(() => Math.random() - 0.5);
+    // Try up to 100 shuffles to find one with minimal adjacent pairs
     const grid = getGridSize();
+    let bestShuffle = shuffleArray(cards);
     let minAdjacent = countAdjacentPairs(bestShuffle, grid.cols);
 
-    for (let attempt = 0; attempt < 10 && minAdjacent > 4; attempt++) {
-      const candidate = [...cards].sort(() => Math.random() - 0.5);
+    // Early termination if we find a perfect shuffle (0 adjacent pairs)
+    for (let attempt = 0; attempt < 100 && minAdjacent > 0; attempt++) {
+      const candidate = shuffleArray(cards);
       const adjacentCount = countAdjacentPairs(candidate, grid.cols);
 
       if (adjacentCount < minAdjacent) {
