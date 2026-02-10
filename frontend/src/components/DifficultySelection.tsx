@@ -4,8 +4,8 @@ import { Theme } from './ThemeGallery';
 import { useUserPreferences } from '../contexts/UserPreferences';
 import { DIFFICULTY_LEVELS, DifficultyLevel } from '../constants/difficultyLevels';
 import { apiService } from '../services/api';
+import { sendErrorNotification } from '../services/errorNotification';
 import './DifficultySelection.css';
-
 
 const DifficultySelection: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ const DifficultySelection: React.FC = () => {
   const { preferences, toggleReducedMotion } = useUserPreferences();
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Load theme data from URL parameter
   useEffect(() => {
@@ -23,19 +24,23 @@ const DifficultySelection: React.FC = () => {
 
     const loadTheme = async () => {
       try {
-        setLoading(true);
         const response = await apiService.getThemes();
         const theme = response.themes?.find((t: Theme) => t.id === themeId);
-        
+
         if (!theme) {
-          navigate('/');
-          return;
+          setError('Theme not found. Please select a theme from the gallery.');
+          sendErrorNotification('Theme Not Found', `Theme ID: ${themeId} not found in API response`);
+        } else {
+          setSelectedTheme(theme);
+          setError(null);
         }
-        
-        setSelectedTheme(theme);
-      } catch (error) {
-        console.error('Failed to load theme:', error);
-        navigate('/');
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.error('Failed to load theme:', errorMessage);
+        setError('Unable to load theme details. Please try again later.');
+
+        // Send throttled error notification
+        sendErrorNotification('Theme Load Failure', `Theme ID: ${themeId}, Error: ${errorMessage}`);
       } finally {
         setLoading(false);
       }
@@ -44,11 +49,36 @@ const DifficultySelection: React.FC = () => {
     loadTheme();
   }, [themeId, navigate]);
 
-  if (!selectedTheme || loading) {
+  if (loading) {
     return (
       <div className="difficulty-selection">
         <div className="difficulty-content">
           <div className="loading">Loading theme...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !selectedTheme) {
+    return (
+      <div className="difficulty-selection">
+        <div className="difficulty-content">
+          <div className="error-state">
+            <div className="error-icon">⚠️</div>
+            <h2>Oops! Something went wrong</h2>
+            <p>{error || 'Unable to load theme details.'}</p>
+            <div className="error-actions">
+              <Link to="/" className="back-to-themes-button">
+                ← Back to Themes
+              </Link>
+              <button
+                className="retry-button"
+                onClick={() => window.location.reload()}
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
