@@ -1,0 +1,382 @@
+{
+  "timestamp": "2026-02-10T00:48:27.311Z",
+  "bucket": "memory-game-images-dev",
+  "table": "memory-game-api-themes-dev",
+  "summary": {
+    "totalThemesWithBrokenRefs": 26,
+    "totalBrokenImages": 101,
+    "totalBrokenThumbnails": 116
+  },
+  "themes": [
+    {
+      "themeId": "65f14954-d4bd-469b-822f-331ce6503e57",
+      "themeName": "Fruits",
+      "status": "curated",
+      "totalImages": 31,
+      "brokenImages": 4,
+      "brokenThumbnails": 10,
+      "brokenImageList": [
+        "images/Succulent Pear-cartoon-2-d683f89b-4154-440e-a54a-726065586895.webp",
+        "images/Tart Red Cranberry-cartoon-4-0b72f65a-e8ff-4f21-8791-62b342576c06.webp",
+        "images/Sweet Red Strawberry-cartoon-7-5e7e174b-4e2c-4903-82da-c93a34b50e1f.webp",
+        "images/Tart Red Cherry-cartoon-24-5734f01e-7d33-4b0e-92cf-1446c67aa31d.webp",
+        "images/Speckled Starfruit-cartoon-11-69317d94-fd5c-4f47-9f39-aa846b42d8c8.webp",
+        "images/Ripe Avocado-cartoon-14-47b08ad5-d571-44f3-99db-8c1c06183ab6.webp",
+        "images/Sparkling Champagne Grape-cartoon-16-477af7d8-6f90-42c5-bb69-6c2e6c12dd5a.webp",
+        "images/Ripe Durian-cartoon-24-c756e43d-84fe-4a97-843a-b4b3c5c32323.webp",
+        "images/Tender Rambutan-cartoon-27-1dc84cdc-1b72-4b63-9f1f-d3a69692b23d.webp",
+        "images/Ripe Lychee-cartoon-31-080aecb4-0603-41de-b7ad-0ac22ed3806f.webp"
+      ]
+    },
+    {
+      "themeId": "6c3ef5d5-7bf2-42ca-9b43-93a1dceb4611",
+      "themeName": "Veggies",
+      "status": "curated",
+      "totalImages": 35,
+      "brokenImages": 6,
+      "brokenThumbnails": 9,
+      "brokenImageList": [
+        "images/Speckled Patterned Zucchini-simple-6-a43fea87-afcb-4d6b-a3fc-43b3182da204.webp",
+        "images/Ruffled Emerald Brusselsprouts-simple-12-179d6253-6dd2-4d12-b67d-dd7e480b3878.webp",
+        "images/Twisted Gnarled Horseradish-simple-23-2a892d7a-01b4-4787-93c4-4b4a0e50eced.webp",
+        "images/Twisted Brown Ginger Root-simple-10-4a18bbc1-fdde-4645-972f-748a9ff8c174.webp",
+        "images/Tiny Green Peas-simple-11-2095661f-0f90-4ed8-af23-b9e136355043.webp",
+        "images/Rounded Green Lime-simple-20-42fecf12-7297-42d8-b9ac-133beaa95dc2.webp",
+        "images/Slender Green Leek-simple-23-1af11b7c-b25e-48c6-8a5a-f066619d8457.webp",
+        "images/Spiraled Yellow Squash-simple-25-92950baf-dccd-4160-a390-0877220afe66.webp",
+        "images/Speckled Brown Mushrooms-simple-33-2f9c23d3-ca85-4834-8d2a-6057ab989263.webp"
+      ]
+    },
+    {
+      "themeId": "e84ecb79-56d0-4ddc-970c-67c79e299bbf",
+      "themeName": "Mazes & Labyrinths",
+      "status": "curated",
+      "totalImages": 33,
+      "brokenImages": 6,
+      "brokenThumbnails": 8,
+      "brokenImageList": [
+        "images/Serene Lavender Maze-realistic-3-de1390fa-b7b2-4717-923a-e630f360d3fc.webp",
+        "images/Tranquil Seafoam Maze-realistic-13-f7e3dfd2-89f8-401d-b6ba-d2d0b260e29b.webp",
+        "images/Shimmering Amethyst Maze-simple-6-4fc7720d-e34c-4573-bc5a-acd8f828685c.webp",
+        "images/Towering Marble Labyrinth-simple-15-e10dcdea-3510-4acc-a72f-4ecd2504be2f.webp",
+        "images/Serene Spiral Sanctuary-realistic-7-4f241276-4632-467c-99f0-2aee75e88ea9.webp",
+        "images/Shimmering Sunburst Maze-realistic-8-b8d4edb6-9d5a-48ad-b376-3df158868d0f.webp",
+        "images/Resplendent Radiant Rift-realistic-16-be3df82e-0321-4a85-b3e1-f5522d4d5af4.webp",
+        "images/Sparkling Crystal Maze-simple-10-b94d9df3-b1b8-4853-b519-ecd004ce19fa.webp"
+      ]
+    },
+    {
+      "themeId": "fd4c18bb-290d-427b-97d7-e1bec8829282",
+      "themeName": "Animals",
+      "status": "curated",
+      "totalImages": 35,
+      "brokenImages": 3,
+      "brokenThumbnails": 8,
+      "brokenImageList": [
+        "images/Spotted Brown Cow-realistic-4-3a57bf91-f21e-446e-a741-1baae218d34a.webp",
+        "images/Spirited Brown Horse-realistic-8-638f6ef7-c082-42b1-b156-5a1133e9f4ca.webp",
+        "images/Serene Gray Alpaca-realistic-12-276be889-aa00-4229-b8b9-8f0ccc566213.webp",
+        "images/Regal White Swan-realistic-14-af1335be-7f61-4912-b7ea-8c0c6becb6f6.webp",
+        "images/Speckled Brown Chicken-realistic-15-91a8f3aa-e189-469e-9879-597fcca88a87.webp",
+        "images/Sleek Agile Cheetah-realistic-10-31717cf1-803b-407a-b4e3-a93132ba0ccb.webp",
+        "images/Scurrying Industrious Ant-realistic-20-f1fa2596-4253-48d0-883d-4e44ac128b84.webp",
+        "images/Soaring Majestic Eagle-realistic-21-17058dd4-f6e6-4f4e-8fdd-0701c2f4e1c8.webp"
+      ]
+    },
+    {
+      "themeId": "27d168ed-6647-42c4-9c83-ea86cb34b8dc",
+      "themeName": "Space",
+      "status": "curated",
+      "totalImages": 35,
+      "brokenImages": 3,
+      "brokenThumbnails": 7,
+      "brokenImageList": [
+        "images/Serene Blue Gas Giant-realistic-1-9f5542fb-38f3-4c9d-9284-2c5a89db91cf.webp",
+        "images/Shimmering Meteor Shower-realistic-6-a414cf9c-d448-4279-b8d8-52c33daff0ce.webp",
+        "images/Tranquil Crescent Moon-realistic-7-cb299a0f-a394-40a9-9d99-0495e25b7bf5.webp",
+        "images/Serene Lunar Outpost-simple-1-855d16fa-e246-4b71-8779-25806c730033.webp",
+        "images/Tranquil Terrestrial Exoplanet-simple-8-52c241cf-2921-42cf-a404-00296283bf30.webp",
+        "images/Resilient Lunar Buggy-simple-21-450e543b-d95e-4173-a272-fdfdf4f42abc.webp",
+        "images/Serene Icy Dwarf Planet-simple-33-10fa0103-699e-41a8-b756-6fead8939423.webp"
+      ]
+    },
+    {
+      "themeId": "f2cd8cf7-8bd6-4fb1-b9cb-0c034d7ca804",
+      "themeName": "Pasta types",
+      "status": "curated",
+      "totalImages": 34,
+      "brokenImages": 3,
+      "brokenThumbnails": 7,
+      "brokenImageList": [
+        "images/Spirited Spiralli-simple-0-7623699f-9a12-4370-864c-2cb0aa67ab41.webp",
+        "images/Sassy Spaghetti-simple-8-27dcf203-8eb7-4e8f-8390-2b7527d51235.webp",
+        "images/Splendid Stelline-simple-12-7b757fdf-aad3-4fcd-8e73-de0dc1c58634.webp",
+        "images/Sparkling Strozzapreti-simple-14-95867793-7dc8-449e-9200-ca7afc30ba07.webp",
+        "images/Spirited Fusilli Corkscrew-simple-1-a3c9ef3e-5328-4469-9482-fdb6ce9d4d86.webp",
+        "images/Serene Orecchiette Ear-simple-5-f9066193-5e3a-4e71-8b7d-2282f91f9a3a.webp",
+        "images/Serene Bucatini Hollow Tubes-simple-18-27a88290-0f86-47ad-8f58-91a5dfcd9abc.webp"
+      ]
+    },
+    {
+      "themeId": "cac82eb1-527b-40bb-9cf0-92b866519aa3",
+      "themeName": "Ceramics",
+      "status": "curated",
+      "totalImages": 35,
+      "brokenImages": 8,
+      "brokenThumbnails": 7,
+      "brokenImageList": [
+        "images/Serene Kiva Bowl-realistic-2-1216362a-aa07-40f8-8ef7-5e142b771652.webp",
+        "images/Spirited Kokopelli Pitcher-realistic-3-04a918e3-122d-4845-8f61-4500c1d8c6ab.webp",
+        "images/Rustic Brown Ceramic Teapot-realistic-1-36d2aa4a-7c60-4b16-8d4a-ea2ad38cd7ca.webp",
+        "images/Serene Ancient Vase-realistic-0-271f8572-92be-4afd-a261-370b34cd2fc1.webp",
+        "images/Sleek Stoneware Serving Bowl-cartoon-11-99dab4aa-757d-4bfd-bc44-22d3c14c8f7f.webp",
+        "images/Sculptural Ceramic Vase-cartoon-17-345bcc45-ca32-403c-8679-4d1e129595f1.webp",
+        "images/Sculpted Ceramic Vase-simple-17-1ffd1ae2-e62b-4dcb-b93a-8c4777776d55.webp"
+      ]
+    },
+    {
+      "themeId": "b4084e82-fd0f-43bb-8b42-63b10a4da904",
+      "themeName": "Musical instruments",
+      "status": "curated",
+      "totalImages": 25,
+      "brokenImages": 4,
+      "brokenThumbnails": 7,
+      "brokenImageList": [
+        "images/Shimmering Silver Saxophone-realistic-0-3ace340d-cecc-465d-ba9c-6ee6bc4b2e44.webp",
+        "images/Thunderous Maroon Drum-realistic-2-94924608-acbc-42ec-83f5-0a7953b624d5.webp",
+        "images/Spirited Teal Trumpet-realistic-4-ead7bc2f-d1dd-444a-92c0-e3d4bad19b2f.webp",
+        "images/Soulful Mahogany Acoustic Guitar-realistic-5-b6563703-e3dc-4827-b1d2-2b3c4b1c5342.webp",
+        "images/Soulful Cobalt Clarinet-realistic-11-bda9fe55-5c93-4708-8e4b-f336494aebcf.webp",
+        "images/Rhythmic Chartreuse Tambourine-realistic-13-7e38c8f1-2d9b-409d-9962-bd0a63a0b0d6.webp",
+        "images/Resplendent Teal Harpsichord-realistic-24-b51366e2-8031-4a92-b4d7-08a32bf960d5.webp"
+      ]
+    },
+    {
+      "themeId": "f8173165-978b-4d19-96c2-53e326f7e0b7",
+      "themeName": "Kolam designs",
+      "status": "curated",
+      "totalImages": 35,
+      "brokenImages": 7,
+      "brokenThumbnails": 6,
+      "brokenImageList": [
+        "images/Tranquil Lotus Blossom-simple-2-431996ab-0507-4cca-ac8b-0d7d7a521c21.webp",
+        "images/Serene Lotus Sanctuary-simple-16-73b94113-176f-4dc3-839e-c989139d95d8.webp",
+        "images/Serene Lotus Symphony-simple-21-326935fc-9b60-4997-92a1-680d02afe5e8.webp",
+        "images/Serene Lily Lagoon-simple-26-6fb83038-deec-42e4-8b31-c084ae7f3121.webp",
+        "images/Serene Lotus Reflection-simple-31-6d6364b6-7138-4159-8ba4-85da651e8e3e.webp",
+        "images/Serene Floral Rangoli-simple-4-b2839ba1-31af-459f-88bd-c74a1b812c73.webp"
+      ]
+    },
+    {
+      "themeId": "fc4349cf-221b-408c-b649-05698087fbd7",
+      "themeName": "Bugs",
+      "status": "curated",
+      "totalImages": 28,
+      "brokenImages": 2,
+      "brokenThumbnails": 5,
+      "brokenImageList": [
+        "images/Slimy Green Salamander-realistic-1-d50ec718-5b4f-4787-a6ff-f9f7aa61626c.webp",
+        "images/Slimy Oozing Slug-realistic-10-fe7b64c2-948a-4990-8949-72279c96bbe8.webp",
+        "images/Twisted Chitinous Beetle-realistic-11-7699e62b-59f7-4efa-b88b-37cb570bfcb0.webp",
+        "images/Sleek Predatory Mantis-realistic-6-d238f173-7498-416c-a5f0-6b681ba49331.webp",
+        "images/Towering Colossal Hornet-realistic-9-c8e4bf81-63de-42c1-bdc6-b4b00521f288.webp"
+      ]
+    },
+    {
+      "themeId": "55130998-176f-45b3-8f4f-a75e6001fefa",
+      "status": "draft",
+      "totalImages": 20,
+      "brokenImages": 3,
+      "brokenThumbnails": 4,
+      "brokenImageList": [
+        "images/Serene Seafoam Waves-simple-2-b51f7d36-d027-4926-aff4-47e64a9c439f.webp",
+        "images/Shimmering Opal Mosaic-simple-4-c9006ab5-a8de-4abb-b46b-40a592e39933.webp",
+        "images/Tranquil Lavender Lattice-simple-6-4f4f13aa-9694-404e-8972-f4836bea5b57.webp",
+        "images/Serene Jade Medallion-simple-12-cafe3d3e-a1d7-4461-bd6d-9f9395d55ba1.webp"
+      ]
+    },
+    {
+      "themeId": "898a9234-9444-4639-9e84-13656b54c8b3",
+      "themeName": "Trains",
+      "status": "curated",
+      "totalImages": 32,
+      "brokenImages": 5,
+      "brokenThumbnails": 4,
+      "brokenImageList": [
+        "images/Rugged Orange Desert Locomotive-cartoon-7-a6aebb15-bea0-4458-b259-d2a2eca6f1d7.webp",
+        "images/Serene Ivory Snow Train-cartoon-17-0b01808e-0fb8-48e6-bccc-fdc0a82e26c4.webp",
+        "images/Streamlined Metro Train-realistic-9-d64723c1-e4e3-4799-af4b-4f9df29cb583.webp",
+        "images/Thundering Steam Locomotive-realistic-18-f57afadc-1ca5-472c-90b4-3d981a2b11f0.webp"
+      ]
+    },
+    {
+      "themeId": "b61da969-1834-4d30-bd08-457066fe8d89",
+      "status": "draft",
+      "totalImages": 30,
+      "brokenImages": 3,
+      "brokenThumbnails": 4,
+      "brokenImageList": [
+        "images/Tenacious Climbing Lizard-cartoon-8-55f3c62d-8f3b-44d7-9039-c14beb8a3b08.webp",
+        "images/Resilient Climbing Spider-cartoon-14-b049085c-e465-4c66-8106-33f5d4821e45.webp",
+        "images/Steadfast Loyal Dog-cartoon-18-cebf360b-125f-4754-a475-76037f99baa1.webp",
+        "images/Tenacious Climbing Chameleon-cartoon-26-73cb66a7-b615-4fc4-bb2a-8147f6875a5a.webp"
+      ]
+    },
+    {
+      "themeId": "30026a4a-0485-4c03-8571-2efa26166fb3",
+      "themeName": "Vehicles",
+      "status": "curated",
+      "totalImages": 33,
+      "brokenImages": 1,
+      "brokenThumbnails": 4,
+      "brokenImageList": [
+        "images/Sleek Silver Sports Car-realistic-0-d2d734d8-2de4-437d-8074-1c425f746bfd.webp",
+        "images/Rugged Yellow Construction Truck-realistic-4-5804faa9-fe0e-4037-8853-950f9877df8c.webp",
+        "images/Speedy Blue Race Car-realistic-5-22cbc0d7-490d-440c-a658-3e8e3af2a6cb.webp",
+        "images/Sturdy Brown Cargo Van-realistic-9-57a7162c-c313-4962-aae8-bb1f01ab14b1.webp"
+      ]
+    },
+    {
+      "themeId": "95835d90-8885-43eb-9b8f-acc0ac4103e3",
+      "themeName": "Pretty patterns",
+      "status": "curated",
+      "totalImages": 24,
+      "brokenImages": 3,
+      "brokenThumbnails": 4,
+      "brokenImageList": [
+        "images/Serene Turtle Shell Markings-simple-10-9da7c67f-daf8-4412-b852-afdaf70dafbb.webp",
+        "images/Striking Gem-Encrusted Geode-simple-26-c193f8b2-b8ef-4a8d-8efa-8c21e781043c.webp",
+        "images/Stunning Scarlet Macaw-simple-7-a4634c57-1343-4c2b-bbae-5ee495f2832f.webp",
+        "images/Striking Spotted Leopard-simple-4-9bb148d3-a052-42f5-a4ca-d248f8a1c32d.webp"
+      ]
+    },
+    {
+      "themeId": "eb8e1836-9912-4878-a0ca-9cd720f2ba69",
+      "themeName": "Brilliant Birds",
+      "status": "curated",
+      "totalImages": 33,
+      "brokenImages": 3,
+      "brokenThumbnails": 4,
+      "brokenImageList": [
+        "images/Stunning Regal Sunbird-realistic-3-3374ea66-60d3-48ce-bdcc-3579b9551d2f.webp",
+        "images/Splendid Superb Starling-realistic-7-4c2ab5c2-647d-41b3-a1d5-7bc650b6aa6d.webp",
+        "images/Striking Red Cardinal-realistic-2-490c589d-2140-4b39-b793-9768a7fe6664.webp",
+        "images/Stunning Scarlet Ibis-realistic-21-5a15e8b7-8f9c-413c-b63a-45e34eaa584c.webp"
+      ]
+    },
+    {
+      "themeId": "4ff70850-8d0b-469d-86a9-ce88e50fd799",
+      "themeName": "colors",
+      "totalImages": 20,
+      "brokenImages": 2,
+      "brokenThumbnails": 3,
+      "brokenImageList": [
+        "images/Serene Turquoise Ocean-cartoon-9-9da29b82-cc54-4706-93b4-f121fd978d87.webp",
+        "images/Splendid Indigo Blueberry-cartoon-10-d3f1db01-244f-4ca5-ba14-ad066907bc9c.webp",
+        "images/Sparkling Aqua Ocean Waves-cartoon-16-3695e7db-5a2f-4eef-a4d1-798779cdb05f.webp"
+      ]
+    },
+    {
+      "themeId": "0621614f-e8e3-4748-a488-4a339c778594",
+      "themeName": "Bridges",
+      "status": "curated",
+      "totalImages": 20,
+      "brokenImages": 1,
+      "brokenThumbnails": 3,
+      "brokenImageList": [
+        "images/Striking Modern Cantilever Bridge-simple-4-a49f80e0-9507-48de-ac72-39b4ede6709d.webp",
+        "images/Towering Cable-Stayed Bridge-simple-6-c8c1b1cd-cdc1-4fc9-9657-f5757483841f.webp",
+        "images/Striking Ziggurat Pyramid Bridge-simple-6-5e0fbd45-7695-433e-b5d3-e83dc72e6e2c.webp"
+      ]
+    },
+    {
+      "themeId": "4e38209d-8917-4c3c-b0cc-03c5b56c8a3a",
+      "status": "draft",
+      "totalImages": 10,
+      "brokenImages": 1,
+      "brokenThumbnails": 2,
+      "brokenImageList": [
+        "images/Serene Sunset Lake Quilt-realistic-1-667cdb38-e1c5-4745-a443-e023101bd293.webp",
+        "images/Tropical Paradise Quilt-realistic-4-a27ad92c-89e1-4291-8fd4-9565750cd1c9.webp"
+      ]
+    },
+    {
+      "themeId": "96bb31c2-a4d6-425b-9bc3-f01595b1f0c8",
+      "themeName": "Rocking Royalty",
+      "status": "draft",
+      "totalImages": 31,
+      "brokenImages": 1,
+      "brokenThumbnails": 2,
+      "brokenImageList": [
+        "images/Serene Ebony Queen-cartoon-0-5c53619f-d175-4d9a-a927-31293f0f5a49.webp",
+        "images/Serene Sapphire Dancer-cartoon-2-0e482a5f-ea8f-4ad9-861b-b89d8a4be92d.webp"
+      ]
+    },
+    {
+      "themeId": "47bd0039-8e87-4a5a-b8cd-5aa9dece1e7a",
+      "status": "draft",
+      "totalImages": 10,
+      "brokenImages": 2,
+      "brokenThumbnails": 2,
+      "brokenImageList": [
+        "images/Serene Snowflake Quilt-simple-1-7c2bedab-694f-49a6-906f-4b69ea040fc4.webp",
+        "images/Tranquil Pinwheel Quilt-simple-4-3ec9edd7-8d85-422e-8bc6-5ed6776aa439.webp"
+      ]
+    },
+    {
+      "themeId": "c63b490e-dcfa-43c4-ac9d-a2c12788bce5",
+      "themeName": "Spirals",
+      "status": "curated",
+      "totalImages": 21,
+      "brokenImages": 5,
+      "brokenThumbnails": 2,
+      "brokenImageList": [
+        "images/Serene Chambered Nautilus-realistic-5-37b96d66-01dd-4aee-ac44-2fabc3cbeb87.webp",
+        "images/Stunning Spiral Conch-realistic-15-fecf7d1c-845d-4179-be94-a0f7977ce782.webp"
+      ]
+    },
+    {
+      "themeId": "461e07f5-c482-4e34-9628-c448b33aa68c",
+      "status": "draft",
+      "totalImages": 7,
+      "brokenImages": 1,
+      "brokenThumbnails": 1,
+      "brokenImageList": [
+        "images/Resolute Sapphire Guardian-cartoon-7-6c0c45c4-1cb2-4038-9779-01fad0e6a46d.webp"
+      ]
+    },
+    {
+      "themeId": "cf6f6904-ca49-4a89-82c4-f0d0606379ea",
+      "themeName": "Heavenly Cakes",
+      "status": "curated",
+      "totalImages": 30,
+      "brokenImages": 9,
+      "brokenThumbnails": 1,
+      "brokenImageList": [
+        "images/Rustic Carrot Cake-realistic-7-68721453-1393-43d4-8a4d-b9cfeeaba695.webp"
+      ]
+    },
+    {
+      "themeId": "718ee67c-1b45-4609-a7ab-1a25de3956c0",
+      "themeName": "Elevated Elevators",
+      "status": "curated",
+      "totalImages": 28,
+      "brokenImages": 7,
+      "brokenThumbnails": 1,
+      "brokenImageList": [
+        "images/Scenic Panoramic Elevator-simple-2-13548d90-8442-46d6-898a-52c08d23d0f7.webp"
+      ]
+    },
+    {
+      "themeId": "2b90f0f3-f0a8-41f6-b8c7-06bb50c88af2",
+      "themeName": "Sea creatures",
+      "status": "curated",
+      "totalImages": 35,
+      "brokenImages": 8,
+      "brokenThumbnails": 1,
+      "brokenImageList": [
+        "images/Stunning Cuttlefish-realistic-20-24228bd9-76cc-49d9-80e3-ee4b78d92a2d.webp"
+      ]
+    }
+  ]
+}

@@ -352,12 +352,15 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
       !selectedImages.includes(img.id)
     );
 
-    // Delete rejected images from S3 (don't await - let it run in background)
+    // Delete rejected images from S3
     if (rejectedImages.length > 0) {
       console.log(`Deleting ${rejectedImages.length} rejected images from S3`);
-      rejectedImages.forEach((img: any) => {
-        deleteImageFromS3(img.url, img.thumbnailUrl);
-      });
+      await Promise.all(
+        rejectedImages.map((img: any) =>
+          deleteImageFromS3(img.url, img.thumbnailUrl)
+        )
+      );
+      console.log(`✅ Successfully deleted ${rejectedImages.length} rejected images from S3`);
     }
 
     // Update primary theme to curated status with selected images
@@ -729,9 +732,12 @@ export const deleteTheme: APIGatewayProxyHandler = async (event) => {
     // Delete images from S3
     if (theme.images && Array.isArray(theme.images)) {
       console.log(`Deleting ${theme.images.length} images from S3`);
-      for (const img of theme.images) {
-        deleteImageFromS3(img.url, img.thumbnailUrl);
-      }
+      await Promise.all(
+        theme.images.map((img: any) =>
+          deleteImageFromS3(img.url, img.thumbnailUrl)
+        )
+      );
+      console.log(`✅ Successfully deleted ${theme.images.length} images from S3`);
     }
 
     // Delete theme from DynamoDB

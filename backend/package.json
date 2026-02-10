@@ -8,7 +8,8 @@
     "@aws-sdk/client-s3": "^3.835.0",
     "@aws-sdk/lib-dynamodb": "^3.377.0",
     "aws-lambda": "^1.0.7",
-    "joi": "^17.9.2"
+    "joi": "^17.9.2",
+    "sharp": "^0.33.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
@@ -23,6 +24,7 @@
     "serverless-webpack": "^5.13.0",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.4.4",
+    "ts-node": "^10.9.1",
     "webpack": "^5.88.2"
   },
   "scripts": {
@@ -36,6 +38,11 @@
     "remove:admin": "serverless remove --config serverless-admin.yml",
     "test": "jest",
     "lint": "eslint src --ext .ts",
-    "clean": "rm -rf .serverless node_modules dist .webpack"
+    "clean": "rm -rf .serverless node_modules dist .webpack",
+    "migrate:dry-run": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=true INTERACTIVE=true ts-node scripts/compress-existing-images.ts",
+    "migrate:dry-run-all": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=true INTERACTIVE=false ts-node scripts/compress-existing-images.ts",
+    "migrate:compress": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=false INTERACTIVE=true ts-node scripts/compress-existing-images.ts",
+    "migrate:compress-all": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=false INTERACTIVE=false ts-node scripts/compress-existing-images.ts",
+    "orphan:find": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev THEMES_TABLE=memory-game-api-themes-dev ts-node scripts/find-orphan-images.ts"
   }
 }
