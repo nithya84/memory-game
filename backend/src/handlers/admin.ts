@@ -9,6 +9,14 @@ import { uploadImageToS3, deleteImageFromS3 } from '../services/s3Service';
 
 const uuidv4 = randomUUID;
 
+// CORS headers helper
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Credentials': 'false'
+};
+
 // Admin authentication - requires secure token
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
 
@@ -46,7 +54,7 @@ export const generateThemeForCuration: APIGatewayProxyHandler = async (event) =>
       console.log('❌ AUTH FAILED: Admin authentication required');
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Admin authentication required' })
       };
     }
@@ -60,7 +68,7 @@ export const generateThemeForCuration: APIGatewayProxyHandler = async (event) =>
       console.log('❌ VALIDATION FAILED:', error.details[0].message);
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: error.details[0].message })
       };
     }
@@ -120,7 +128,7 @@ export const generateThemeForCuration: APIGatewayProxyHandler = async (event) =>
           
           return {
             statusCode: 200,
-            headers: { 'Access-Control-Allow-Origin': '*' },
+            headers: CORS_HEADERS,
             body: JSON.stringify({
               themeId: newestTheme.id,
               theme: newestTheme.originalTheme || newestTheme.theme,
@@ -137,7 +145,7 @@ export const generateThemeForCuration: APIGatewayProxyHandler = async (event) =>
           
           return {
             statusCode: 200,
-            headers: { 'Access-Control-Allow-Origin': '*' },
+            headers: CORS_HEADERS,
             body: JSON.stringify({
               themeId: existingTheme.id,
               theme: existingTheme.originalTheme || existingTheme.theme,
@@ -224,7 +232,7 @@ export const generateThemeForCuration: APIGatewayProxyHandler = async (event) =>
 
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         themeId: draftTheme.id,
         theme,
@@ -238,7 +246,7 @@ export const generateThemeForCuration: APIGatewayProxyHandler = async (event) =>
     console.error('Admin theme generation error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Failed to generate theme for curation' })
     };
   }
@@ -250,7 +258,7 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
     if (!isAuthorizedAdmin(event)) {
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Admin authentication required' })
       };
     }
@@ -259,7 +267,7 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
     if (!themeId) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Theme ID required' })
       };
     }
@@ -269,7 +277,7 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
     if (error) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: error.details[0].message })
       };
     }
@@ -286,7 +294,7 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
     if (!result.Items || result.Items.length === 0) {
       return {
         statusCode: 404,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Theme not found' })
       };
     }
@@ -342,7 +350,7 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
     if (curatedImages.length < 20 || curatedImages.length > 35) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Must select between 20-35 valid images' })
       };
     }
@@ -417,7 +425,7 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         themeId,
         name: finalTheme.name,
@@ -432,7 +440,7 @@ export const curateTheme: APIGatewayProxyHandler = async (event) => {
     console.error('Theme curation error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Failed to curate theme' })
     };
   }
@@ -444,7 +452,7 @@ export const getThemeById: APIGatewayProxyHandler = async (event) => {
     if (!isAuthorizedAdmin(event)) {
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Admin authentication required' })
       };
     }
@@ -453,7 +461,7 @@ export const getThemeById: APIGatewayProxyHandler = async (event) => {
     if (!themeId) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Theme ID required' })
       };
     }
@@ -467,7 +475,7 @@ export const getThemeById: APIGatewayProxyHandler = async (event) => {
     if (!result.Items || result.Items.length === 0) {
       return {
         statusCode: 404,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Theme not found' })
       };
     }
@@ -476,7 +484,7 @@ export const getThemeById: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         themeId: theme.id,
         theme: theme.theme || theme.name,
@@ -494,7 +502,7 @@ export const getThemeById: APIGatewayProxyHandler = async (event) => {
     console.error('Get theme by ID error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Failed to get theme' })
     };
   }
@@ -506,7 +514,7 @@ export const consolidateThemes: APIGatewayProxyHandler = async (event) => {
     if (!isAuthorizedAdmin(event)) {
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Admin authentication required' })
       };
     }
@@ -517,7 +525,7 @@ export const consolidateThemes: APIGatewayProxyHandler = async (event) => {
     if (!themeIds || !Array.isArray(themeIds) || themeIds.length < 2) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'At least 2 theme IDs required' })
       };
     }
@@ -538,7 +546,7 @@ export const consolidateThemes: APIGatewayProxyHandler = async (event) => {
     if (themes.length < 2) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Could not find enough themes to consolidate' })
       };
     }
@@ -586,7 +594,7 @@ export const consolidateThemes: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         themeId: primaryTheme.id,
         name: consolidatedTheme.name,
@@ -600,7 +608,7 @@ export const consolidateThemes: APIGatewayProxyHandler = async (event) => {
     console.error('Consolidate themes error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Failed to consolidate themes' })
     };
   }
@@ -612,7 +620,7 @@ export const updateThemePreview: APIGatewayProxyHandler = async (event) => {
     if (!isAuthorizedAdmin(event)) {
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Admin authentication required' })
       };
     }
@@ -621,7 +629,7 @@ export const updateThemePreview: APIGatewayProxyHandler = async (event) => {
     if (!themeId) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Theme ID required' })
       };
     }
@@ -632,7 +640,7 @@ export const updateThemePreview: APIGatewayProxyHandler = async (event) => {
     if (!previewImageId) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Preview image ID required' })
       };
     }
@@ -647,7 +655,7 @@ export const updateThemePreview: APIGatewayProxyHandler = async (event) => {
     if (!result.Items || result.Items.length === 0) {
       return {
         statusCode: 404,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Theme not found' })
       };
     }
@@ -659,7 +667,7 @@ export const updateThemePreview: APIGatewayProxyHandler = async (event) => {
     if (!imageExists) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Image not found in theme' })
       };
     }
@@ -674,7 +682,7 @@ export const updateThemePreview: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         themeId,
         previewImageId,
@@ -686,7 +694,7 @@ export const updateThemePreview: APIGatewayProxyHandler = async (event) => {
     console.error('Update theme preview error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Failed to update preview image' })
     };
   }
@@ -698,7 +706,7 @@ export const deleteTheme: APIGatewayProxyHandler = async (event) => {
     if (!isAuthorizedAdmin(event)) {
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Admin authentication required' })
       };
     }
@@ -707,7 +715,7 @@ export const deleteTheme: APIGatewayProxyHandler = async (event) => {
     if (!themeId) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Theme ID required' })
       };
     }
@@ -722,7 +730,7 @@ export const deleteTheme: APIGatewayProxyHandler = async (event) => {
     if (!result.Items || result.Items.length === 0) {
       return {
         statusCode: 404,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Theme not found' })
       };
     }
@@ -748,7 +756,7 @@ export const deleteTheme: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         message: 'Theme deleted',
         themeId,
@@ -760,7 +768,7 @@ export const deleteTheme: APIGatewayProxyHandler = async (event) => {
     console.error('Delete theme error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Failed to delete theme' })
     };
   }
@@ -772,7 +780,7 @@ export const listThemes: APIGatewayProxyHandler = async (event) => {
     if (!isAuthorizedAdmin(event)) {
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ error: 'Admin authentication required' })
       };
     }
@@ -795,7 +803,7 @@ export const listThemes: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ themes })
     };
 
@@ -803,7 +811,7 @@ export const listThemes: APIGatewayProxyHandler = async (event) => {
     console.error('List themes error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Failed to list themes' })
     };
   }

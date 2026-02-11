@@ -67,7 +67,11 @@ functions:
       - http:
           path: /admin/themes/generate
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
 
   # Theme Curation (moderate cost - deletes rejected images)
   curateTheme:
@@ -76,7 +80,11 @@ functions:
       - http:
           path: /admin/themes/{themeId}/curate
           method: put
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
 
   # Get Single Theme by ID (includes images for curation)
   getThemeById:
@@ -85,7 +93,11 @@ functions:
       - http:
           path: /admin/themes/{themeId}
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
 
   # Consolidate multiple themes into one
   consolidateThemes:
@@ -94,7 +106,11 @@ functions:
       - http:
           path: /admin/themes/consolidate
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
 
   # Update preview image for a theme
   updateThemePreview:
@@ -103,7 +119,11 @@ functions:
       - http:
           path: /admin/themes/{themeId}/preview
           method: put
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
 
   # Delete a theme
   deleteTheme:
@@ -112,7 +132,11 @@ functions:
       - http:
           path: /admin/themes/{themeId}
           method: delete
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
 
   # List All Themes (cheap - just DynamoDB scan)
   listThemes:
@@ -121,7 +145,11 @@ functions:
       - http:
           path: /admin/themes
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
 
 package:
   patterns:

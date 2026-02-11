@@ -7,9 +7,11 @@
     "@aws-sdk/client-dynamodb": "^3.377.0",
     "@aws-sdk/client-s3": "^3.835.0",
     "@aws-sdk/lib-dynamodb": "^3.377.0",
+    "@jimp/wasm-webp": "^1.6.0",
     "aws-lambda": "^1.0.7",
+    "jimp": "^1.6.0",
     "joi": "^17.9.2",
-    "sharp": "^0.33.0"
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
@@ -39,10 +41,12 @@
     "test": "jest",
     "lint": "eslint src --ext .ts",
     "clean": "rm -rf .serverless node_modules dist .webpack",
-    "migrate:dry-run": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=true INTERACTIVE=true ts-node scripts/compress-existing-images.ts",
-    "migrate:dry-run-all": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=true INTERACTIVE=false ts-node scripts/compress-existing-images.ts",
-    "migrate:compress": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=false INTERACTIVE=true ts-node scripts/compress-existing-images.ts",
-    "migrate:compress-all": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=false INTERACTIVE=false ts-node scripts/compress-existing-images.ts",
-    "orphan:find": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev THEMES_TABLE=memory-game-api-themes-dev ts-node scripts/find-orphan-images.ts"
+    "migrate:dry-run": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev THEMES_TABLE=memory-game-api-themes-dev DRY_RUN=true INTERACTIVE=true ts-node scripts/compress-existing-images.ts",
+    "migrate:dry-run-all": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev THEMES_TABLE=memory-game-api-themes-dev DRY_RUN=true INTERACTIVE=false ts-node scripts/compress-existing-images.ts",
+    "migrate:compress": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev THEMES_TABLE=memory-game-api-themes-dev DRY_RUN=false INTERACTIVE=true ts-node scripts/compress-existing-images.ts",
+    "migrate:compress-all": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev THEMES_TABLE=memory-game-api-themes-dev DRY_RUN=false INTERACTIVE=false ts-node scripts/compress-existing-images.ts",
+    "orphan:find": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev THEMES_TABLE=memory-game-api-themes-dev ts-node scripts/find-orphan-images.ts",
+    "orphan:delete:dry-run": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=true ts-node scripts/delete-orphans.ts",
+    "orphan:delete": "REGION=us-east-1 S3_BUCKET=memory-game-images-dev DRY_RUN=false ts-node scripts/delete-orphans.ts"
   }
 }

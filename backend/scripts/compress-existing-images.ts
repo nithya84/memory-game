@@ -1,9 +1,10 @@
 import {
   S3Client,
-  ListObjectsV2Command,
   GetObjectCommand,
   PutObjectCommand
 } from '@aws-sdk/client-s3';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import sharp from 'sharp';
 import { Readable } from 'stream';
 import * as readline from 'readline';
@@ -11,16 +12,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const REGION = process.env.REGION || process.env.AWS_REGION || 'us-east-1';
-const s3Client = new S3Client({
-  region: REGION
-});
+const s3Client = new S3Client({ region: REGION });
+
+const dynamoClient = new DynamoDBClient({ region: REGION });
+const docClient = DynamoDBDocumentClient.from(dynamoClient);
 
 const BUCKET_NAME = process.env.S3_BUCKET || 'memory-game-images';
+const TABLE_NAME = process.env.THEMES_TABLE || 'memory-game-api-themes-dev';
 
 // Configuration
 const DRY_RUN = process.env.DRY_RUN === 'true';
-const INTERACTIVE = process.env.INTERACTIVE !== 'false'; // Default to interactive
-const DELAY_BETWEEN_BATCHES = parseInt(process.env.DELAY_MS || '1000', 10);
+const INTERACTIVE = process.env.INTERACTIVE !== 'false';
+const DELAY_BETWEEN_THEMES = parseInt(process.env.DELAY_MS || '1000', 10);
 
 // Setup logging to file
 const LOGS_DIR = path.join(__dirname, '../logs');
@@ -32,12 +35,10 @@ const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
 const LOG_FILE = path.join(LOGS_DIR, `migration-${timestamp}.log`);
 const logStream = fs.createWriteStream(LOG_FILE, { flags: 'a' });
 
-// Logger function
 function log(message: string): void {
   logStream.write(message + '\n');
 }
 
-// Console-only output (not logged)
 function consoleOnly(message: string): void {
   process.stdout.write(message);
 }
@@ -51,10 +52,19 @@ interface CompressionStats {
   totalSizeAfter: number;
 }
 
-interface ThemeGroup {
-  themeName: string;
-  imageKeys: string[];
-  thumbnailKeys: string[];
+interface ThemeRecord {
+  id: string;
+  name?: string;
+  theme: string;
+  style: string;
+  status: string;
+  images: Array<{
+    id: string;
+    url: string;
+    thumbnailUrl: string;
+    altText?: string;
+  }>;
+  createdAt: string;
 }
 
 // Helper to convert stream to buffer
@@ -67,44 +77,20 @@ async function streamToBuffer(stream: Readable): Promise<Buffer> {
   });
 }
 
-// Extract theme name from S3 key
-// Format: images/ThemeName-style-index-uuid.webp
-function extractThemeName(key: string): string {
-  const filename = key.split('/').pop() || '';
-  // Remove folder prefix, then split by hyphen and take everything except last 3 parts (style-index-uuid)
-  const parts = filename.replace('.webp', '').split('-');
-  // Find the style part (cartoon, realistic, simple) and take everything before it
-  const styleIndex = parts.findIndex(p => ['cartoon', 'realistic', 'simple'].includes(p));
-  if (styleIndex > 0) {
-    return parts.slice(0, styleIndex).join('-');
+// Extract S3 key from URL
+function extractS3Key(url: string): string | null {
+  try {
+    // URL format: https://bucket.s3.region.amazonaws.com/path/to/file.webp
+    // or: https://cloudfront.net/path/to/file.webp
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    // Remove leading slash and decode URL encoding
+    const key = pathname.startsWith('/') ? pathname.slice(1) : pathname;
+    return decodeURIComponent(key);
+  } catch (error) {
+    log(`Failed to extract S3 key from URL: ${url}`);
+    return null;
   }
-  // Fallback: take everything except last 3 parts
-  return parts.slice(0, -3).join('-');
-}
-
-// Group images by theme
-function groupByTheme(imageKeys: string[], thumbnailKeys: string[]): ThemeGroup[] {
-  const themeMap = new Map<string, ThemeGroup>();
-
-  // Group images
-  imageKeys.forEach(key => {
-    const themeName = extractThemeName(key);
-    if (!themeMap.has(themeName)) {
-      themeMap.set(themeName, { themeName, imageKeys: [], thumbnailKeys: [] });
-    }
-    themeMap.get(themeName)!.imageKeys.push(key);
-  });
-
-  // Group thumbnails
-  thumbnailKeys.forEach(key => {
-    const themeName = extractThemeName(key);
-    if (!themeMap.has(themeName)) {
-      themeMap.set(themeName, { themeName, imageKeys: [], thumbnailKeys: [] });
-    }
-    themeMap.get(themeName)!.thumbnailKeys.push(key);
-  });
-
-  return Array.from(themeMap.values()).sort((a, b) => a.themeName.localeCompare(b.themeName));
 }
 
 // Compress a single image
@@ -148,11 +134,10 @@ async function compressImage(
     const compressedSize = compressedBuffer.length;
     stats.totalSizeAfter += compressedSize;
 
-    const cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN;
-    const baseUrl = cloudFrontDomain ? `https://${cloudFrontDomain}` : `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com`;
-    const url = `${baseUrl}/${key}`;
+    const savedBytes = originalSize - compressedSize;
+    const percentSaved = ((savedBytes / originalSize) * 100).toFixed(1);
 
-    log(`${key.split('/').pop()} | ${url}`);
+    log(`${key.split('/').pop()} | ${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB (${percentSaved}% saved)`);
 
     if (DRY_RUN) {
       stats.succeeded++;
@@ -172,7 +157,7 @@ async function compressImage(
     stats.succeeded++;
 
   } catch (error) {
-    log(`Failed: ${key}`);
+    log(`Failed: ${key} - ${error instanceof Error ? error.message : error}`);
     stats.failed++;
   }
 }
@@ -180,33 +165,6 @@ async function compressImage(
 // Sleep helper
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// List all S3 objects with pagination
-async function listAllS3Objects(prefix: string): Promise<string[]> {
-  const allKeys: string[] = [];
-  let continuationToken: string | undefined;
-
-  do {
-    const command = new ListObjectsV2Command({
-      Bucket: BUCKET_NAME,
-      Prefix: prefix,
-      ContinuationToken: continuationToken
-    });
-
-    const response = await s3Client.send(command);
-
-    if (response.Contents) {
-      const keys = response.Contents
-        .filter(obj => obj.Key && obj.Key.endsWith('.webp'))
-        .map(obj => obj.Key!);
-      allKeys.push(...keys);
-    }
-
-    continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
-  } while (continuationToken);
-
-  return allKeys;
 }
 
 // Interactive prompt
@@ -225,28 +183,87 @@ function promptUser(question: string): Promise<string> {
 }
 
 // Process a single theme
-async function processTheme(theme: ThemeGroup, stats: CompressionStats): Promise<void> {
-  // Process images
-  for (const key of theme.imageKeys) {
-    await compressImage(key, true, stats);
-    stats.processed++;
+async function processTheme(theme: ThemeRecord, stats: CompressionStats): Promise<void> {
+  const themeName = theme.name || `${theme.theme} (${theme.style})`;
+  const imageCount = theme.images?.length || 0;
+
+  consoleOnly(`\n${'='.repeat(60)}\n`);
+  consoleOnly(`Theme: ${themeName}\n`);
+  consoleOnly(`Status: ${theme.status} | Images: ${imageCount}\n`);
+  consoleOnly(`ID: ${theme.id}\n`);
+  consoleOnly(`${'='.repeat(60)}\n`);
+
+  log(`\n${'='.repeat(60)}`);
+  log(`Theme: ${themeName}`);
+  log(`Status: ${theme.status} | Images: ${imageCount} | ID: ${theme.id}`);
+  log(`${'='.repeat(60)}`);
+
+  if (!theme.images || theme.images.length === 0) {
+    consoleOnly('No images to process\n');
+    log('No images to process');
+    return;
+  }
+
+  const themeStartStats = { ...stats };
+
+  // Extract S3 keys from image URLs
+  const imageKeys: string[] = [];
+  const thumbnailKeys: string[] = [];
+
+  for (const img of theme.images) {
+    const imageKey = extractS3Key(img.url);
+    const thumbnailKey = extractS3Key(img.thumbnailUrl);
+
+    if (imageKey) imageKeys.push(imageKey);
+    if (thumbnailKey) thumbnailKeys.push(thumbnailKey);
+  }
+
+  // Process full images
+  if (imageKeys.length > 0) {
+    consoleOnly(`Processing ${imageKeys.length} full images...\n`);
+    log(`Processing ${imageKeys.length} full images...`);
+
+    for (const key of imageKeys) {
+      await compressImage(key, true, stats);
+      stats.processed++;
+    }
   }
 
   // Process thumbnails
-  for (const key of theme.thumbnailKeys) {
-    await compressImage(key, false, stats);
-    stats.processed++;
+  if (thumbnailKeys.length > 0) {
+    consoleOnly(`Processing ${thumbnailKeys.length} thumbnails...\n`);
+    log(`Processing ${thumbnailKeys.length} thumbnails...`);
+
+    for (const key of thumbnailKeys) {
+      await compressImage(key, false, stats);
+      stats.processed++;
+    }
   }
+
+  // Show theme summary
+  const themeSizeBefore = stats.totalSizeBefore - themeStartStats.totalSizeBefore;
+  const themeSizeAfter = stats.totalSizeAfter - themeStartStats.totalSizeAfter;
+  const themeSaved = themeSizeBefore - themeSizeAfter;
+  const themePercent = themeSizeBefore > 0 ? ((themeSaved / themeSizeBefore) * 100).toFixed(1) : '0';
+
+  consoleOnly(`\nTheme Summary:\n`);
+  consoleOnly(`  Before: ${(themeSizeBefore / 1024 / 1024).toFixed(2)} MB\n`);
+  consoleOnly(`  After: ${(themeSizeAfter / 1024 / 1024).toFixed(2)} MB\n`);
+  consoleOnly(`  Saved: ${(themeSaved / 1024 / 1024).toFixed(2)} MB (${themePercent}%)\n`);
+
+  log(`Theme Summary: ${(themeSizeBefore / 1024 / 1024).toFixed(2)}MB → ${(themeSizeAfter / 1024 / 1024).toFixed(2)}MB (${themePercent}% saved)`);
 }
 
 // Main migration function
 async function migrateImages(): Promise<void> {
   consoleOnly(`\nS3 Image Compression - ${DRY_RUN ? 'DRY RUN' : 'LIVE'}\n`);
   consoleOnly(`Bucket: ${BUCKET_NAME}\n`);
+  consoleOnly(`Table: ${TABLE_NAME}\n`);
   consoleOnly(`Log file: ${LOG_FILE}\n\n`);
 
   log(`S3 Image Compression - ${DRY_RUN ? 'DRY RUN' : 'LIVE'}`);
   log(`Bucket: ${BUCKET_NAME}`);
+  log(`Table: ${TABLE_NAME}`);
   log(`Started: ${new Date().toISOString()}\n`);
 
   const stats: CompressionStats = {
@@ -259,42 +276,34 @@ async function migrateImages(): Promise<void> {
   };
 
   try {
-    // List all objects with pagination
-    consoleOnly('Listing all images from S3...\n');
-    const [imageKeys, thumbnailKeys] = await Promise.all([
-      listAllS3Objects('images/'),
-      listAllS3Objects('thumbs/')
-    ]);
+    // Scan DynamoDB for all themes
+    consoleOnly('Loading themes from DynamoDB...\n');
+    const scanResult = await docClient.send(new ScanCommand({
+      TableName: TABLE_NAME
+    }));
 
-    if (imageKeys.length === 0 && thumbnailKeys.length === 0) {
-      consoleOnly('No images found\n');
-      log('No images found');
+    const themes = (scanResult.Items || []) as ThemeRecord[];
+
+    if (themes.length === 0) {
+      consoleOnly('No themes found in DynamoDB\n');
+      log('No themes found in DynamoDB');
       return;
     }
 
-    // Group by theme
-    const themes = groupByTheme(imageKeys, thumbnailKeys);
-    const totalItems = imageKeys.length + thumbnailKeys.length;
+    // Sort: newest first
+    themes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    consoleOnly(`Processing ${totalItems} items...\n`);
-    log(`Processing ${imageKeys.length} images and ${thumbnailKeys.length} thumbnails`);
+    consoleOnly(`Found ${themes.length} themes\n`);
+    log(`Found ${themes.length} themes`);
 
     if (!INTERACTIVE) {
       // Process all themes without prompts
       for (let i = 0; i < themes.length; i++) {
         await processTheme(themes[i], stats);
-
-        // Show progress every 10%
-        const percent = Math.floor((stats.processed / totalItems) * 100);
-        if (stats.processed % Math.ceil(totalItems / 10) === 0 || i === themes.length - 1) {
-          consoleOnly(`Progress: ${percent}% (${stats.processed}/${totalItems})\r`);
-        }
-
         if (i < themes.length - 1) {
-          await sleep(DELAY_BETWEEN_BATCHES);
+          await sleep(DELAY_BETWEEN_THEMES);
         }
       }
-      consoleOnly('\n');
     } else {
       // Interactive mode: one theme at a time
       let continueAll = false;
@@ -308,27 +317,21 @@ async function migrateImages(): Promise<void> {
 
         if (!continueAll) {
           const answer = await promptUser(
-            `[${i + 1}/${themes.length}] ${stats.processed}/${totalItems} processed | [n]ext / [a]ll / [s]top: `
+            `\n[${i + 1}/${themes.length}] [n]ext theme / [a]ll remaining / [s]top: `
           );
 
           if (answer === 's' || answer === 'stop') {
             log('Stopped by user');
+            consoleOnly('\nStopped by user\n');
             break;
           } else if (answer === 'a' || answer === 'all') {
             continueAll = true;
-            consoleOnly('Processing all remaining...\n');
-          }
-        } else {
-          // Show progress in all mode
-          const percent = Math.floor((stats.processed / totalItems) * 100);
-          if (stats.processed % Math.ceil(totalItems / 10) === 0) {
-            consoleOnly(`Progress: ${percent}% (${stats.processed}/${totalItems})\r`);
+            consoleOnly('Processing all remaining themes...\n');
           }
         }
 
-        await sleep(DELAY_BETWEEN_BATCHES);
+        await sleep(DELAY_BETWEEN_THEMES);
       }
-      consoleOnly('\n');
     }
 
     // Print final summary
