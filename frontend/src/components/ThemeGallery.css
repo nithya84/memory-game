@@ -1,6 +1,6 @@
 .theme-gallery {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--secondary-bg) 0%, #e8ede5 100%);
+  background: var(--primary-bg);
   padding: 2rem;
   position: relative;
 }
@@ -45,6 +45,7 @@
   text-align: center;
   color: var(--text-primary);
   margin-bottom: 3rem;
+  padding-top: 4rem;
 }
 
 .how-to-play {
@@ -192,7 +193,7 @@
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 1rem;
-  background: #f5f5f5;
+  background: var(--border-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -216,25 +217,34 @@
 .theme-name {
   font-size: 1.4rem;
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
+}
+
+.theme-info h3 {
+  color: var(--text-primary);
 }
 
 .theme-description {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0 0 0.75rem 0;
   line-height: 1.4;
 }
 
+.theme-info p {
+  color: var(--text-secondary);
+}
+
 .theme-count {
   display: inline-block;
-  background: var(--accent-color);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0.25rem 0;
+  border-radius: 0;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 400;
+  border: none;
 }
 
 /* Theme Suggestion Form */

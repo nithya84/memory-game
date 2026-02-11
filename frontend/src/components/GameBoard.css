@@ -60,6 +60,11 @@
   border-color: var(--accent-color);
 }
 
+.timing-select option {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
 .manual-flip-btn {
   background: var(--accent-color);
   color: white;
@@ -353,9 +358,9 @@
 }
 
 .difficulty-nav-btn {
-  background: var(--accent-color);
-  color: white;
-  border: none;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 2px solid var(--border-medium);
   padding: 0.75rem 1.5rem;
   font-size: 0.9rem;
   font-weight: 500;
@@ -370,27 +375,30 @@
 }
 
 .difficulty-nav-btn:hover:not(:disabled) {
-  background: #6b8c78;
+  background: var(--border-light);
+  border-color: var(--accent-color);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px var(--shadow-medium);
 }
 
 .difficulty-nav-btn:disabled {
-  background: var(--text-muted);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  border-color: var(--border-light);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .level-up {
-  background: var(--accent-warm);
+  border-color: var(--accent-warm);
 }
 
 .level-up:hover:not(:disabled) {
-  background: #b8925a;
+  border-color: var(--accent-warm);
 }
 
 .level-down {
-  background: var(--accent-color);
+  border-color: var(--accent-color);
 }
 
 .new-game-btn {

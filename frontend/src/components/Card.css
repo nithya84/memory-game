@@ -58,7 +58,7 @@
 
 /* Card Back (Default State) */
 .card-back {
-  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  background: linear-gradient(135deg, var(--border-light) 0%, var(--border-medium) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -75,19 +75,19 @@
 .pattern-dots {
   width: 100%;
   height: 100%;
-  background-image: 
-    radial-gradient(circle at 25% 25%, #6c757d 2px, transparent 2px),
-    radial-gradient(circle at 75% 25%, #6c757d 2px, transparent 2px),
-    radial-gradient(circle at 25% 75%, #6c757d 2px, transparent 2px),
-    radial-gradient(circle at 75% 75%, #6c757d 2px, transparent 2px),
-    radial-gradient(circle at 50% 50%, #6c757d 3px, transparent 3px);
+  background-image:
+    radial-gradient(circle at 25% 25%, var(--text-muted) 2px, transparent 2px),
+    radial-gradient(circle at 75% 25%, var(--text-muted) 2px, transparent 2px),
+    radial-gradient(circle at 25% 75%, var(--text-muted) 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, var(--text-muted) 2px, transparent 2px),
+    radial-gradient(circle at 50% 50%, var(--text-muted) 3px, transparent 3px);
   background-size: 20px 20px;
   background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
 }
 
 /* Card Front (Flipped State) */
 .card-front {
-  background: #ffffff;
+  background: var(--card-bg);
   transform: rotateY(180deg);
   padding: 0;
   display: block;
@@ -109,7 +109,8 @@
 }
 
 .memory-card.matched .card-back {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-warm) 100%);
+  opacity: 0.7;
 }
 
 /* Disabled State */

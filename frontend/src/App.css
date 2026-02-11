@@ -6,7 +6,7 @@
 }
 
 :root {
-  /* Autism-friendly color palette */
+  /* Autism-friendly color palette - Light Theme */
   --primary-bg: #f7f7f5; /* Soft off-white */
   --secondary-bg: #eef2eb; /* Gentle sage green */
   --accent-color: #7b9f8a; /* Muted sage green */
@@ -19,6 +19,38 @@
   --border-medium: #d1d7d4;
   --shadow-light: rgba(45, 51, 57, 0.08);
   --shadow-medium: rgba(45, 51, 57, 0.12);
+}
+
+/* Dark Theme - Reduced glare for photosensitive users */
+[data-theme="dark"] {
+  --primary-bg: #1a1d23; /* Deep charcoal */
+  --secondary-bg: #22252b; /* Slightly lighter charcoal */
+  --accent-color: #6b9f8a; /* Muted teal - maintains calm aesthetic */
+  --accent-warm: #b8a679; /* Muted gold */
+  --text-primary: #e8e9eb; /* Soft white */
+  --text-secondary: #b8bcc2; /* Light grey */
+  --text-muted: #8a8e94; /* Medium grey */
+  --card-bg: #2a2d33; /* Card background */
+  --border-light: #3a3d43;
+  --border-medium: #4a4d53;
+  --shadow-light: rgba(0, 0, 0, 0.3);
+  --shadow-medium: rgba(0, 0, 0, 0.5);
+}
+
+/* High Contrast Theme - Enhanced visibility without eye strain */
+[data-theme="high-contrast"] {
+  --primary-bg: #000000; /* Pure black */
+  --secondary-bg: #1a1a1a; /* Near black */
+  --accent-color: #00d4ff; /* Bright cyan - high contrast but less harsh */
+  --accent-warm: #ffa500; /* Orange - visible but not painful */
+  --text-primary: #ffffff; /* Pure white */
+  --text-secondary: #e0e0e0; /* Light grey */
+  --text-muted: #b0b0b0; /* Medium grey */
+  --card-bg: #1a1a1a; /* Dark card background */
+  --border-light: #666666; /* Grey borders */
+  --border-medium: #888888;
+  --shadow-light: rgba(255, 255, 255, 0.15);
+  --shadow-medium: rgba(255, 255, 255, 0.3);
 }
 
 /* Reduced motion support - respects system preference and user override */
@@ -72,28 +104,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2rem;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.game-nav .back-button {
-  background: var(--accent-color);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-  min-height: 44px;
-  min-width: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.game-nav .back-button:hover {
-  background: #6b8c78;
+  background: var(--card-bg);
+  box-shadow: 0 2px 8px var(--shadow-light);
 }
 
 .game-info {
@@ -105,7 +117,7 @@ body {
 .theme-name {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .difficulty-badge {
@@ -118,7 +130,7 @@ body {
 }
 
 .pairs-count {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 
@@ -126,15 +138,36 @@ body {
   padding: 2rem;
 }
 
+/* Reusable Back Button */
 .back-button {
-  color: #6c757d;
-  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
   font-weight: 500;
-  transition: color 0.2s;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  min-height: 44px;
+  min-width: 44px;
+  opacity: 0.8;
 }
 
-.back-button:hover {
-  color: #495057;
+.back-button:hover,
+.back-button:focus {
+  background: var(--card-bg);
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.back-button:visited {
+  color: var(--text-secondary);
 }
 
 /* Buttons */
@@ -229,17 +262,7 @@ body {
 /* Game Page */
 .game-page {
   min-height: 100vh;
-  background: #f8f9fa;
-}
-
-.game-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: white;
-  border-bottom: 2px solid #e9ecef;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: var(--primary-bg);
 }
 
 .settings-button {

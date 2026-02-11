@@ -58,10 +58,13 @@ export const UserPreferencesProvider: React.FC<UserPreferencesProviderProps> = (
   // Save preferences to localStorage and apply CSS variables
   useEffect(() => {
     localStorage.setItem('memory-game-preferences', JSON.stringify(preferences));
-    
+
     // Apply CSS custom property for reduced motion
     document.documentElement.style.setProperty('--user-reduced-motion', preferences.reducedMotion ? '1' : '0');
     document.documentElement.setAttribute('data-reduced-motion', preferences.reducedMotion ? 'true' : 'false');
+
+    // Apply theme to document root
+    document.documentElement.setAttribute('data-theme', preferences.theme);
   }, [preferences]);
 
   const updatePreferences = (updates: Partial<UserPreferences>) => {
